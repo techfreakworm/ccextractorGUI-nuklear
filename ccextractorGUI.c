@@ -58,13 +58,8 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 
 
 /*Rectangle to hold file names*/
-void draw_file_rectangle_widget(struct nk_context *ctx)
+void draw_file_rectangle_widget(struct nk_context *ctx, struct nk_font *font)
 {
-	struct nk_font_atlas *font_atlas;
-	nk_glfw3_font_stash_begin(&font_atlas);
-	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/DroidSans.ttf", 14, 0);
-	nk_glfw3_font_stash_end();
-
 	struct nk_command_buffer *canvas;
 	struct nk_input *input = &ctx->input;
 	canvas = nk_window_get_canvas(ctx);
@@ -80,12 +75,12 @@ void draw_file_rectangle_widget(struct nk_context *ctx)
 	if (!strcmp(filePath[0], "\0")) {
 		space.y = space.y + (space.h / 2) -10;
 		space.x = space.x + 90;
-		nk_draw_text(canvas, space, "Drag and Drop files here for Extraction.", 40, &droid->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+		nk_draw_text(canvas, space, "Drag and Drop files here for Extraction.", 40, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
 	}
 	else {
 		for (int i = 0; i < fileCount; i++)
 		{
-			nk_draw_text(canvas, space, filePath[i], strlen(filePath[i]), &droid->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+			nk_draw_text(canvas, space, filePath[i], strlen(filePath[i]), &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
 			space.y = space.y + 20;
 		}
 	}
@@ -93,13 +88,8 @@ void draw_file_rectangle_widget(struct nk_context *ctx)
 }
 
 /*Rectangle to hold extraction info*/
-void draw_info_rectangle_widget(struct nk_context *ctx)
+void draw_info_rectangle_widget(struct nk_context *ctx, struct nk_font *font)
 {
-	struct nk_font_atlas *font_atlas;
-	nk_glfw3_font_stash_begin(&font_atlas);
-	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/DroidSans.ttf", 14, 0);
-	nk_glfw3_font_stash_end();
-
 	struct nk_command_buffer *canvas;
 	struct nk_input *input = &ctx->input;
 	canvas = nk_window_get_canvas(ctx);
@@ -113,13 +103,13 @@ void draw_info_rectangle_widget(struct nk_context *ctx)
 	update_your_widget_by_user_input(...);*/
 	nk_fill_rect(canvas, space, 5, nk_rgb(88, 81, 96));
 	space.x = space.x + 3;
-	nk_draw_text(canvas, space, "Input Type: Auto", 16, &droid->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+	nk_draw_text(canvas, space, "Input Type: Auto", 16, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
 	space.y = space.y + 20;
-	nk_draw_text(canvas, space, "Output Type: Default(.srt)", 26, &droid->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+	nk_draw_text(canvas, space, "Output Type: Default(.srt)", 26, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
 	space.y = space.y + 20;
-	nk_draw_text(canvas, space, "Output Path: Default", 20, &droid->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+	nk_draw_text(canvas, space, "Output Path: Default", 20, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
 	space.y = space.y + 20;
-	nk_draw_text(canvas, space, "Hardsubs Extraction: Yes", 24, &droid->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+	nk_draw_text(canvas, space, "Hardsubs Extraction: Yes", 24, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
 }
 
 int main(void)
@@ -148,14 +138,12 @@ int main(void)
 	static int advanced_mode_check = 1;
 	static int file_extension_check = 1;
 	ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
-	{
 		struct nk_font_atlas *font_atlas;
 		nk_glfw3_font_stash_begin(&font_atlas);
 		struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/DroidSans.ttf", 14, 0);
 		nk_glfw3_font_stash_end();
 		nk_style_load_all_cursors(ctx, font_atlas->cursors);
 		nk_style_set_font(ctx, &droid->handle);
-	}
 	background = nk_rgb(0, 0, 0);
 
 	/*Main GUI loop*/
@@ -248,7 +236,7 @@ int main(void)
 			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 180, 3, ratio_rect_files);
 			nk_spacing(ctx, 1);
-			draw_file_rectangle_widget(ctx);
+			draw_file_rectangle_widget(ctx, droid);
 			//nk_spacing(ctx, 1);
 
 		
@@ -291,7 +279,7 @@ int main(void)
 			static const float ratio_rect_info[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 75, 3, ratio_rect_info);
 			nk_spacing(ctx, 1);
-			draw_info_rectangle_widget(ctx);
+			draw_info_rectangle_widget(ctx, droid);
 			//nk_fill_rect(nk_window_get_canvas(ctx), nk_layout_space_bounds(ctx) , 5, nk_rgb(004, 003, 255));
 			//nk_spacing(ctx, 1);
 
