@@ -24,8 +24,8 @@
 #include "nuklear_lib/nuklear.h"
 #include "nuklear_lib/nuklear_glfw_gl2.h"
 
-#define WINDOW_WIDTH 1200
-#define WINDOW_HEIGHT 800
+//#define WINDOW_WIDTH 1200
+//#define WINDOW_HEIGHT 800
 //#define true 1
 //#define false 0
 //#define UNUSED(a) (void)a
@@ -39,6 +39,9 @@ char command[20];
 /*Global Variables for Drag and Drop files*/
 char filePath[50][250];
 int fileCount;
+
+/* Width and Height of MAIN_FRAME*/
+const GLint WIDTH = 530, HEIGHT = 550;
 
 static void error_callback(int e, const char *d)
 {
@@ -116,11 +119,10 @@ int main(void)
 {
 	//Platform
 	static GLFWwindow *win;
-	int width = 530, height = 550;
 	struct nk_context *ctx;
-	struct nk_color background;
 	static const char *ports[] = { "UDP", "TCP" };
 	static int selected_port = 0;
+	int screenWidth, screenHeight;
 
 	//GLFW
 	glfwSetErrorCallback(error_callback);
@@ -128,23 +130,25 @@ int main(void)
 	{
 		fprintf(stdout, "GLFW failed to initialise.\n");
 	}
-	win = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "CCExtractor", NULL, NULL);
+	win = glfwCreateWindow(WIDTH, HEIGHT, "CCExtractor", NULL, NULL);
+	if (win == NULL)
+		printf("Window Could not be created!\n");
 	glfwMakeContextCurrent(win);
-	glfwSetWindowSize(win, width, height);
-	glfwSetWindowSizeLimits(win, width, height, width, height);
+	glfwSetWindowSizeLimits(win, WIDTH, HEIGHT, WIDTH, HEIGHT);
+	glfwSetWindowUserPointer(win, &ctx);
 	glfwSetDropCallback(win, drop_callback);
+	glfwGetFramebufferSize(win, &screenWidth, &screenHeight);
 
 	//GUI
 	static int advanced_mode_check = 1;
 	static int file_extension_check = 1;
 	ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
-		struct nk_font_atlas *font_atlas;
-		nk_glfw3_font_stash_begin(&font_atlas);
-		struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/DroidSans.ttf", 14, 0);
-		nk_glfw3_font_stash_end();
-		nk_style_load_all_cursors(ctx, font_atlas->cursors);
-		nk_style_set_font(ctx, &droid->handle);
-	background = nk_rgb(0, 0, 0);
+	struct nk_font_atlas *font_atlas;
+	nk_glfw3_font_stash_begin(&font_atlas);
+	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/DroidSans.ttf", 14, 0);
+	nk_glfw3_font_stash_end();
+	nk_style_load_all_cursors(ctx, font_atlas->cursors);
+	nk_style_set_font(ctx, &droid->handle);
 
 	/*Main GUI loop*/
 	while (!glfwWindowShouldClose(win))
@@ -153,12 +157,9 @@ int main(void)
 		glfwPollEvents();
 		nk_glfw3_new_frame();
 
-		
-
-
 		//GUI
-		if (nk_begin(ctx, "CCExtractor", nk_rect(0, 0, 530, 550),
-			NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BACKGROUND))
+		if (nk_begin(ctx, "CCExtractor", nk_rect(0, 0, WIDTH, HEIGHT),
+			NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BACKGROUND))
 		{
 			// nk_menubar_begin(ctx);
 			// nk_layout_row_dynamic(ctx, 31, 3);
@@ -190,13 +191,42 @@ int main(void)
 				nk_menu_end(ctx);
 			}
 			nk_layout_row_push(ctx, 45);
-			if (nk_menu_begin_label(ctx, "Help", NK_TEXT_LEFT, nk_vec2(120, 200))) 
+			if (nk_menu_begin_label(ctx, "Help", NK_TEXT_LEFT, nk_vec2(120, 200)))
 			{
 				nk_layout_row_dynamic(ctx, 30, 1);
 				if (nk_menu_item_label(ctx, "Getting Started", NK_TEXT_LEFT))
-			
 					fprintf(stdout, "Getting started selected!");
-				nk_menu_item_label(ctx, "About CCExtractor", NK_TEXT_LEFT);
+				if (nk_menu_item_label(ctx, "About CCExtractor", NK_TEXT_LEFT))
+				{
+					GLFWwindow *aboutWindow = glfwCreateWindow(200, 200, "About", NULL, NULL);
+					int aboutWidth, aboutHeight;
+					glfwGetFramebufferSize(aboutWindow, &aboutWidth, &aboutHeight);
+					struct nk_context *aboutContext;
+					aboutContext = nk_glfw3_init(aboutWindow, NK_GLFW3_DEFAULT);
+
+					if (aboutWindow == NULL)
+						printf("Failed to create About Window!\n");
+
+					glfwMakeContextCurrent(aboutWindow);
+					glViewport(0, 0, aboutWidth, aboutHeight);
+					nk_style_set_font(aboutContext, &droid->handle);
+					while (!glfwWindowShouldClose(aboutWindow))
+					{
+						glfwPollEvents();
+						glClear(GL_COLOR_BUFFER_BIT); 
+
+						if (nk_begin(aboutContext, "About", nk_rect(0, 0, aboutWidth, aboutHeight),
+							NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BACKGROUND))
+						{
+							nk_layout_row_static(aboutContext, 30, 50, 1);
+							nk_button_label(ctx, "Button");
+						}
+						nk_end(aboutContext);
+						glfwSwapBuffers(aboutWindow);
+					}
+					glfwDestroyWindow(aboutWindow);
+
+				}
 				nk_menu_end(ctx);
 			}
 			nk_layout_row_end(ctx);
@@ -204,7 +234,7 @@ int main(void)
 			nk_layout_space_begin(ctx, NK_STATIC, 15, 1);
 			nk_layout_space_end(ctx);
 
-		//ADVANCED MODE FLAG
+			//ADVANCED MODE FLAG
 			static const float ratio_adv_mode[] = { 0.77f, 0.20f, .03f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 3, ratio_adv_mode);
 			nk_spacing(ctx, 1);
@@ -224,7 +254,7 @@ int main(void)
 			if (nk_option_label(ctx, "Extract from files below:", op == FILES))
 				op = FILES;
 
-		//CHECKBOX FOR FILE TYPES
+			//CHECKBOX FOR FILE TYPES
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
 			nk_spacing(ctx, 1);
 			if (nk_checkbox_label(ctx, "Check for common video file extensions", &file_extension_check))
@@ -232,17 +262,17 @@ int main(void)
 				fprintf(stdout, "Will check for common video extensions with value:%d\n", file_extension_check);
 			}
 
-		//RECTANGLE-FILES
+			//RECTANGLE-FILES
 			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 180, 3, ratio_rect_files);
 			nk_spacing(ctx, 1);
 			draw_file_rectangle_widget(ctx, droid);
 			//nk_spacing(ctx, 1);
 
-		
+
 
 		//RadioButton 2 along with combobox
-			static const float ratio_port[]={0.10f,0.20f,0.20f,0.20f,0.20f,0.10f};
+			static const float ratio_port[] = { 0.10f,0.20f,0.20f,0.20f,0.20f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_port);
 			nk_spacing(ctx, 1);
 			if (nk_option_label(ctx, "Extract from", op == PORT))
@@ -257,7 +287,7 @@ int main(void)
 			}
 			nk_label(ctx, " stream, on port:", NK_TEXT_LEFT);
 
-		//RADDIO BUTTON 2, TEXTEDIT FOR ENTERING PORT NUMBER
+			//RADDIO BUTTON 2, TEXTEDIT FOR ENTERING PORT NUMBER
 			static int port_num;
 			static int *current = &port_num;
 			{
@@ -271,11 +301,11 @@ int main(void)
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
 
-		//Extraction Information
+			//Extraction Information
 			nk_layout_row_dynamic(ctx, 10, 1);
 			nk_text(ctx, "Extraction Info:", 16, NK_TEXT_CENTERED);
 
-		//RECTANGLE-INFO
+			//RECTANGLE-INFO
 			static const float ratio_rect_info[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 75, 3, ratio_rect_info);
 			nk_spacing(ctx, 1);
@@ -283,10 +313,10 @@ int main(void)
 			//nk_fill_rect(nk_window_get_canvas(ctx), nk_layout_space_bounds(ctx) , 5, nk_rgb(004, 003, 255));
 			//nk_spacing(ctx, 1);
 
-			
+
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
-		//PROGRESSBAR
+			//PROGRESSBAR
 			static nk_size cursor = 0;
 			static const float ratio_progress[] = { 0.10f,0.03f,0.57f,0.03f,0.17f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_progress);
@@ -297,17 +327,17 @@ int main(void)
 			//nk_layout_row_push(ctx, 295);
 			nk_progress(ctx, &cursor, 101, nk_true);
 
-		//Extract Button
-		//	nk_layout_row_push(ctx, 50);
-			//nk_spacing(ctx, 1);
-			//nk_layout_row_push(ctx, 100);
-			/*static const float extract_ratio[] = { 0.80f, 0.20f };
-			nk_layout_row(ctx, NK_DYNAMIC, 30, 2, extract_ratio);
-			nk_spacing(ctx, 1);*/
+			//Extract Button
+			//	nk_layout_row_push(ctx, 50);
+				//nk_spacing(ctx, 1);
+				//nk_layout_row_push(ctx, 100);
+				/*static const float extract_ratio[] = { 0.80f, 0.20f };
+				nk_layout_row(ctx, NK_DYNAMIC, 30, 2, extract_ratio);
+				nk_spacing(ctx, 1);*/
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				strcpy(command, "./ccextractor ");
+				strcpy(command, "ccextractorwin ");
 				strcat(command, filePath[0]);
 				system(command);
 			}
@@ -315,7 +345,7 @@ int main(void)
 			//nk_layout_row_end(ctx);
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
-		//PROGRESS_DETAILS_BUTTON
+			//PROGRESS_DETAILS_BUTTON
 			nk_layout_row_dynamic(ctx, 20, 3);
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Progress Details"))
@@ -327,20 +357,14 @@ int main(void)
 		}
 		nk_end(ctx);
 
-		{
-			float bg[4];
-			nk_color_fv(bg, background);
-			glfwGetWindowSize(win, &width, &height);
-			glViewport(0, 0, width, height);
-			glClear(GL_COLOR_BUFFER_BIT);
-			glClearColor(bg[0], bg[1], bg[2], bg[3]);
-			/* IMPORTANT: `nk_glfw_render` modifies some global OpenGL state
-			* with blending, scissor, face culling and depth test and defaults everything
-			* back into a default state. Make sure to either save and restore or
-			* reset your own state after drawing rendering the UI. */
-			nk_glfw3_render(NK_ANTI_ALIASING_ON);
-			glfwSwapBuffers(win); 
-		}
+		glViewport(0, 0, screenWidth, screenHeight);
+		glClear(GL_COLOR_BUFFER_BIT);
+		/* IMPORTANT: `nk_glfw_render` modifies some global OpenGL state
+		* with blending, scissor, face culling and depth test and defaults everything
+		* back into a default state. Make sure to either save and restore or
+		* reset your own state after drawing rendering the UI. */
+		nk_glfw3_render(NK_ANTI_ALIASING_ON);
+		glfwSwapBuffers(win);
 	}
 
 	nk_glfw3_shutdown();
