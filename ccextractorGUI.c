@@ -24,6 +24,7 @@
 #include "nuklear_lib/nuklear.h"
 #include "nuklear_lib/nuklear_glfw_gl2.h"
 
+
 //#define WINDOW_WIDTH 1200
 //#define WINDOW_HEIGHT 800
 //#define true 1
@@ -32,6 +33,10 @@
 //#define MIN(a,b) ((a) < (b) ? (a) : (b))
 //#define MAX(a,b) ((a) < (b) ? (b) : (a))
 //#define LEN(a) (sizeof(a)/sizeof(a)[0])
+#include "activity.c"
+#include "terminal.c"
+#include "preview.c"
+
 
 /*Trigger command for CLI*/
 char command[20];
@@ -40,8 +45,14 @@ char command[20];
 char filePath[50][250];
 int fileCount;
 
-/* Width and Height of MAIN_FRAME*/
-const GLint WIDTH = 530, HEIGHT = 550;
+/* Width and Height of all frames*/
+const GLint WIDTH_mainPanelAndWindow = 530, HEIGHT_mainPanelandWindow = 550;
+const GLint WIDTH_termORPreviewPanel = 530, HEIGHT_termORPreviewPanel = 100;
+const GLint WIDTH_termANDPreviewPanel = 400, HEIGHT_termANDPreviewPanel = 650;
+const GLint WIDTH_activityPanel = 400, HEIGHT_activityPanelSolo = 550, HEIGHT_activityPanelDuo = 650;
+const GLint WIDTH_mainTermORPreviewWindow = 530, HEIGHT_mainORPreviewTermWindow = 650;
+const GLint WIDTH_mainTermANDPreviewWindow = 930, HEIGHT_mainTermAndPreviewWindow = 650;
+const GLint WIDTH_mainActivityWindow = 930, HEIGHT_mainActivityWindowSolo = 550, HEIGHT_mainActivityWindowDuo = 650;
 
 static void error_callback(int e, const char *d)
 {
@@ -123,6 +134,7 @@ int main(void)
 	static const char *ports[] = { "UDP", "TCP" };
 	static int selected_port = 0;
 	int screenWidth, screenHeight;
+	int screenWidth_term, screenHeight_term;
 
 	//GLFW
 	glfwSetErrorCallback(error_callback);
@@ -130,25 +142,30 @@ int main(void)
 	{
 		fprintf(stdout, "GLFW failed to initialise.\n");
 	}
-	win = glfwCreateWindow(WIDTH, HEIGHT, "CCExtractor", NULL, NULL);
+	win = glfwCreateWindow(1200, 800, "CCExtractor", NULL, NULL);
 	if (win == NULL)
 		printf("Window Could not be created!\n");
 	glfwMakeContextCurrent(win);
-	glfwSetWindowSizeLimits(win, WIDTH, HEIGHT, WIDTH, HEIGHT);
+	glfwSetWindowSizeLimits(win, 1200, 800, 1200, 800);
 	glfwSetWindowUserPointer(win, &ctx);
 	glfwSetDropCallback(win, drop_callback);
 	glfwGetFramebufferSize(win, &screenWidth, &screenHeight);
 
 	//GUI
-	static int advanced_mode_check = 1;
-	static int file_extension_check = 1;
+
 	ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
 	struct nk_font_atlas *font_atlas;
 	nk_glfw3_font_stash_begin(&font_atlas);
-	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/DroidSans.ttf", 14, 0);
+	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/Roboto-Regular.ttf", 16, 0);
 	nk_glfw3_font_stash_end();
-	nk_style_load_all_cursors(ctx, font_atlas->cursors);
 	nk_style_set_font(ctx, &droid->handle);
+
+	//CHECKBOX VALUES
+	static int show_terminal_check = nk_false;
+	static int show_preview_check = nk_false;
+	static int show_activity_check = nk_false;
+	static int advanced_mode_check = nk_false;
+	static int file_extension_check = nk_true;
 
 	/*Main GUI loop*/
 	while (!glfwWindowShouldClose(win))
@@ -157,10 +174,17 @@ int main(void)
 		glfwPollEvents();
 		nk_glfw3_new_frame();
 
+		//Popups
+		static int show_about_ccx = nk_false;
+		static int show_getting_started = nk_false;
+		static int show_preferences_network = nk_false;
+
 		//GUI
-		if (nk_begin(ctx, "CCExtractor", nk_rect(0, 0, WIDTH, HEIGHT),
+		if (nk_begin(ctx, "CCExtractor", nk_rect(0, 0, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow),
 			NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BACKGROUND))
 		{
+			
+
 			// nk_menubar_begin(ctx);
 			// nk_layout_row_dynamic(ctx, 31, 3);
 			// // nk_menu_begin(ctx, win, "pref", 1, nk_rect(0, 0, 30, 10),nk_vec2(0,0));
@@ -179,15 +203,16 @@ int main(void)
 			if (nk_menu_begin_label(ctx, "Preferences", NK_TEXT_LEFT, nk_vec2(120, 200))) {
 				nk_layout_row_dynamic(ctx, 30, 1);
 				nk_menu_item_label(ctx, "Reset Defaults", NK_TEXT_LEFT);
-				nk_menu_item_label(ctx, "Network Settings", NK_TEXT_LEFT);
+				if (nk_menu_item_label(ctx, "Network Settings", NK_TEXT_LEFT))
+					show_preferences_network = nk_true;
 				nk_menu_end(ctx);
 			}
 			nk_layout_row_push(ctx, 70);
 			if (nk_menu_begin_label(ctx, "Windows", NK_TEXT_LEFT, nk_vec2(120, 200))) {
 				nk_layout_row_dynamic(ctx, 30, 1);
-				nk_menu_item_label(ctx, "Activity", NK_TEXT_LEFT);
-				nk_menu_item_label(ctx, "Terminal", NK_TEXT_LEFT);
-				nk_menu_item_label(ctx, "Progress", NK_TEXT_LEFT);
+				nk_checkbox_label(ctx, "Activity", &show_activity_check);
+				nk_checkbox_label(ctx, "Terminal", &show_terminal_check);
+				nk_checkbox_label(ctx, "Preview", &show_preview_check);
 				nk_menu_end(ctx);
 			}
 			nk_layout_row_push(ctx, 45);
@@ -195,40 +220,54 @@ int main(void)
 			{
 				nk_layout_row_dynamic(ctx, 30, 1);
 				if (nk_menu_item_label(ctx, "Getting Started", NK_TEXT_LEFT))
-					fprintf(stdout, "Getting started selected!");
+					show_getting_started = nk_true;
 				if (nk_menu_item_label(ctx, "About CCExtractor", NK_TEXT_LEFT))
-				{
-					GLFWwindow *aboutWindow = glfwCreateWindow(200, 200, "About", NULL, NULL);
-					int aboutWidth, aboutHeight;
-					glfwGetFramebufferSize(aboutWindow, &aboutWidth, &aboutHeight);
-					struct nk_context *aboutContext;
-					aboutContext = nk_glfw3_init(aboutWindow, NK_GLFW3_DEFAULT);
-
-					if (aboutWindow == NULL)
-						printf("Failed to create About Window!\n");
-
-					glfwMakeContextCurrent(aboutWindow);
-					glViewport(0, 0, aboutWidth, aboutHeight);
-					nk_style_set_font(aboutContext, &droid->handle);
-					while (!glfwWindowShouldClose(aboutWindow))
-					{
-						glfwPollEvents();
-						glClear(GL_COLOR_BUFFER_BIT); 
-
-						if (nk_begin(aboutContext, "About", nk_rect(0, 0, aboutWidth, aboutHeight),
-							NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BACKGROUND))
-						{
-							nk_layout_row_static(aboutContext, 30, 50, 1);
-							nk_button_label(ctx, "Button");
-						}
-						nk_end(aboutContext);
-						glfwSwapBuffers(aboutWindow);
-					}
-					glfwDestroyWindow(aboutWindow);
-
-				}
+					show_about_ccx = nk_true;
 				nk_menu_end(ctx);
 			}
+			
+		//Network Settings
+			if (show_preferences_network)
+			{
+				static struct nk_rect s = { 20,100,300,190 };
+				if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Network Settings", NK_WINDOW_CLOSABLE, s))
+				{
+					nk_layout_row_dynamic(ctx, 20, 1);
+					nk_label(ctx, "Network Settings will come here!", NK_TEXT_LEFT);
+					nk_popup_end(ctx);
+				}
+				else
+					show_preferences_network = nk_false;
+			}
+
+		//About CCExtractor Popup
+			if (show_about_ccx)
+			{
+				static struct nk_rect s = { 20,100,300,190 };
+				if (nk_popup_begin(ctx, NK_POPUP_STATIC, "About CCExtractor", NK_WINDOW_CLOSABLE, s))
+				{
+					nk_layout_row_dynamic(ctx, 20, 1);
+					nk_label(ctx, "Information about CCExtractor will come here!", NK_TEXT_LEFT);
+					nk_popup_end(ctx);
+				}
+				else
+					show_about_ccx = nk_false;
+			}
+
+		//Getting Started
+			if (show_getting_started)
+			{
+				static struct nk_rect s = { 20,100,300,190 };
+				if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Getting Started", NK_WINDOW_CLOSABLE, s))
+				{
+					nk_layout_row_dynamic(ctx, 20, 1);
+					nk_label(ctx, "Getting Started information about CCX will come here!", NK_TEXT_LEFT);
+					nk_popup_end(ctx);
+				}
+				else
+					show_getting_started = nk_false;
+			}
+
 			nk_layout_row_end(ctx);
 			nk_menubar_end(ctx);
 			nk_layout_space_begin(ctx, NK_STATIC, 15, 1);
@@ -310,7 +349,6 @@ int main(void)
 			nk_layout_row(ctx, NK_DYNAMIC, 75, 3, ratio_rect_info);
 			nk_spacing(ctx, 1);
 			draw_info_rectangle_widget(ctx, droid);
-			//nk_fill_rect(nk_window_get_canvas(ctx), nk_layout_space_bounds(ctx) , 5, nk_rgb(004, 003, 255));
 			//nk_spacing(ctx, 1);
 
 
@@ -350,12 +388,49 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Progress Details"))
 			{
-				fprintf(stdout, "Progress Details clicked!\n");
+				show_activity_check = nk_true;
+				exit;
 			}
 			nk_spacing(ctx, 1);
 
 		}
 		nk_end(ctx);
+
+		if (show_activity_check && show_preview_check && show_terminal_check)
+		{
+			activity(ctx, 530, 0, 400, 550);
+			terminal(ctx, 0, 550, 530, 100);
+			preview(ctx, 530, 550, 400, 100);
+		}
+		if (show_activity_check && show_preview_check && !show_terminal_check)
+		{
+			activity(ctx, 530, 0, 400, 650);
+			preview(ctx, 0, 550, 530, 100);
+		}
+		if (show_activity_check && !show_preview_check && show_terminal_check)
+		{
+			activity(ctx, 530, 0, 400, 650);
+			terminal(ctx, 0, 550, 530, 100);
+		}
+		if (show_terminal_check && show_preview_check && !show_activity_check)
+		{
+			terminal(ctx, 0, 550, 530, 100);
+			preview(ctx, 530, 0, 400, 650);
+		}
+		if (show_activity_check && !show_preview_check && !show_terminal_check)
+		{
+			activity(ctx, 530, 0, 400, 550);
+		}
+		if (show_terminal_check && !show_activity_check && !show_preview_check)
+		{
+			terminal(ctx, 0, 550, 530, 100);
+		}
+		if (show_preview_check && !show_terminal_check && !show_activity_check)
+		{
+			preview(ctx, 0, 550, 530, 100);
+		}
+
+
 
 		glViewport(0, 0, screenWidth, screenHeight);
 		glClear(GL_COLOR_BUFFER_BIT);
