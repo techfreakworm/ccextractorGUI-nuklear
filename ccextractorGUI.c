@@ -134,7 +134,7 @@ int main(void)
 	static const char *ports[] = { "UDP", "TCP" };
 	static int selected_port = 0;
 	int screenWidth, screenHeight;
-	int screenWidth_term, screenHeight_term;
+	//int winWidth, winHeight;
 
 	//GLFW
 	glfwSetErrorCallback(error_callback);
@@ -142,14 +142,13 @@ int main(void)
 	{
 		fprintf(stdout, "GLFW failed to initialise.\n");
 	}
-	win = glfwCreateWindow(1200, 800, "CCExtractor", NULL, NULL);
+	win = glfwCreateWindow(WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow, "CCExtractor", NULL, NULL);
 	if (win == NULL)
 		printf("Window Could not be created!\n");
 	glfwMakeContextCurrent(win);
-	glfwSetWindowSizeLimits(win, 1200, 800, 1200, 800);
+	glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
 	glfwSetWindowUserPointer(win, &ctx);
 	glfwSetDropCallback(win, drop_callback);
-	glfwGetFramebufferSize(win, &screenWidth, &screenHeight);
 
 	//GUI
 
@@ -396,40 +395,57 @@ int main(void)
 		}
 		nk_end(ctx);
 
+		glfwGetWindowSize(win, &screenWidth, &screenHeight);
+
 		if (show_activity_check && show_preview_check && show_terminal_check)
 		{
+			if (screenWidth != 930 || screenHeight != 650)
+				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 550);
 			terminal(ctx, 0, 550, 530, 100);
 			preview(ctx, 530, 550, 400, 100);
 		}
 		if (show_activity_check && show_preview_check && !show_terminal_check)
 		{
+			if (screenWidth != 930 || screenHeight != 650)
+				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 650);
 			preview(ctx, 0, 550, 530, 100);
 		}
 		if (show_activity_check && !show_preview_check && show_terminal_check)
 		{
+			if (screenWidth != 930 || screenHeight != 650)
+				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 650);
 			terminal(ctx, 0, 550, 530, 100);
 		}
 		if (show_terminal_check && show_preview_check && !show_activity_check)
 		{
+			if (screenWidth != 930 || screenHeight != 650)
+				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			terminal(ctx, 0, 550, 530, 100);
 			preview(ctx, 530, 0, 400, 650);
 		}
 		if (show_activity_check && !show_preview_check && !show_terminal_check)
 		{
+			if (screenWidth != 930 || screenHeight == 650)
+				glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
 			activity(ctx, 530, 0, 400, 550);
 		}
 		if (show_terminal_check && !show_activity_check && !show_preview_check)
 		{
+			if (screenHeight != 650 || screenWidth == 930)
+				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
 			terminal(ctx, 0, 550, 530, 100);
 		}
 		if (show_preview_check && !show_terminal_check && !show_activity_check)
 		{
+			if (screenHeight != 650 || screenWidth == 930)
+				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
 			preview(ctx, 0, 550, 530, 100);
 		}
-
+		if (!show_preview_check && !show_terminal_check && !show_activity_check)
+			glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
 
 
 		glViewport(0, 0, screenWidth, screenHeight);
