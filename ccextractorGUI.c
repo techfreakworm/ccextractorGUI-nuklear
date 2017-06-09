@@ -54,6 +54,10 @@ const GLint WIDTH_mainTermORPreviewWindow = 530, HEIGHT_mainORPreviewTermWindow 
 const GLint WIDTH_mainTermANDPreviewWindow = 930, HEIGHT_mainTermAndPreviewWindow = 650;
 const GLint WIDTH_mainActivityWindow = 930, HEIGHT_mainActivityWindowSolo = 550, HEIGHT_mainActivityWindowDuo = 650;
 
+/*Tab constants*/
+static int tab_screen_height;
+
+
 static void error_callback(int e, const char *d)
 {
 	printf("Error %d: %s\n", e, d);
@@ -184,17 +188,6 @@ int main(void)
 		{
 			
 
-			// nk_menubar_begin(ctx);
-			// nk_layout_row_dynamic(ctx, 31, 3);
-			// // nk_menu_begin(ctx, win, "pref", 1, nk_rect(0, 0, 30, 10),nk_vec2(0,0));
-			// nk_menu_begin_text(ctx, "Preferences", 11, NK_TEXT_LEFT, nk_vec2(0, 0));
-			// nk_menu_begin_text(ctx, "Windows", 7, NK_TEXT_LEFT, nk_vec2(0, 0));
-			// nk_menu_begin_text(ctx, "About", 5, NK_TEXT_LEFT, nk_vec2(0, 0));
-
-			// // nk_menu_begin_label(ctx, "Preferences", NK_TEXT_LEFT, nk_vec2(0, 0));
-			// // nk_menu_close(ctx);
-			// nk_menubar_end(ctx);
-
 		//MENUBAR
 			nk_menubar_begin(ctx);
 			nk_layout_row_begin(ctx, NK_STATIC, 30, 3);
@@ -272,8 +265,103 @@ int main(void)
 			nk_layout_space_begin(ctx, NK_STATIC, 15, 1);
 			nk_layout_space_end(ctx);
 
+			/*TABS TRIGGERED IN ADVANCED MODE FLAG*/
+			if (advanced_mode_check)
+			{
+				static int current_tab = 0;
+				struct nk_vec2 item_padding;
+				struct nk_rect bounds;
+				enum tab_name { MAIN, INPUT, ADV_INPUT, OUTPUT, DECODERS, CREDITS, DEBUG, HDHOMERUN, BURNEDSUBS };
+				const char *names[] = { "Main", "Input", "Adavanced Input", "Output", "Decoders", "Credits", "Debug", "HDHomeRun", "BurnedSubs" };
+				float id = 0;
+				int i;
+
+				nk_style_push_vec2(ctx, &ctx->style.window.spacing, nk_vec2(0, 0));
+				nk_style_push_float(ctx, &ctx->style.button.rounding, 0);
+				nk_layout_row_begin(ctx, NK_STATIC, 20, 9);
+				for (i = 0; i < 9; ++i) {
+					/*Make sure button perfectly fits text*/
+					const struct nk_user_font *f = ctx->style.font;
+					float text_width = f->width(f->userdata, f->height, names[i], nk_strlen(names[i]));
+					float widget_width = text_width + 3 * ctx->style.button.padding.x;
+					nk_layout_row_push(ctx, widget_width);
+					if (current_tab == i) {
+						/*Active tab gets highlighted*/
+						struct nk_style_item button_color = ctx->style.button.normal;
+						ctx->style.button.normal = ctx->style.button.active;
+						current_tab = nk_button_label(ctx, names[i]) ? i : current_tab;
+						ctx->style.button.normal = button_color;
+					}
+					else
+						current_tab = nk_button_label(ctx, names[i]) ? i : current_tab;
+				}
+				nk_style_pop_float(ctx);
+				/*Body*/
+
+				nk_layout_row_dynamic(ctx, tab_screen_height, 1);
+				if (nk_group_begin(ctx, "Notebook", 0))
+				{
+					nk_style_pop_vec2(ctx);
+					switch (current_tab) {
+					case MAIN:
+						tab_screen_height = 0;
+						break;
+
+					case INPUT:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Advanced Input", NK_TEXT_LEFT);
+						break;
+
+					case ADV_INPUT:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Advanced input -2", NK_TEXT_LEFT);
+						break;
+
+					case OUTPUT:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Output", NK_TEXT_LEFT);
+						break;
+
+					case DECODERS:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Decoders", NK_TEXT_LEFT);
+						break;
+
+					case CREDITS:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Credits", NK_TEXT_LEFT);
+						break;
+
+					case DEBUG:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Debug", NK_TEXT_LEFT);
+						break;
+
+					case HDHOMERUN:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "HD Home RUn", NK_TEXT_LEFT);
+						break;
+
+					case BURNEDSUBS:
+						tab_screen_height = 472;
+						nk_layout_row_dynamic(ctx, 30, 1);
+						nk_label(ctx, "Burned Subtitles", NK_TEXT_LEFT);
+						break;
+					}
+					nk_group_end(ctx);
+				}
+				else nk_style_pop_vec2(ctx);
+			}
+
 			//ADVANCED MODE FLAG
-			static const float ratio_adv_mode[] = { 0.77f, 0.20f, .03f };
+			static const float ratio_adv_mode[] = { 0.75f, 0.22f, .03f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 3, ratio_adv_mode);
 			nk_spacing(ctx, 1);
 			if (nk_checkbox_label(ctx, "Advanced Mode", &advanced_mode_check))
