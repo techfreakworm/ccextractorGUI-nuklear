@@ -69,11 +69,33 @@ static void error_callback(int e, const char *d)
 void drop_callback(GLFWwindow* window, int count, const char **paths)
 {
 	fileCount = count;
-	int i;
+	int i,j,file_length, copycount, prefix_length;
+	char file_name[66], *ptr;
 	printf("Number of selected paths:%d\n", count);
 	for (i = 0; i < count; i++)
 	{
 		strcpy(filePath[i], paths[i]);
+		
+		if (strlen(filePath[i]) > 65)
+		{
+
+			ptr = strrchr(filePath[i], '/');
+			file_length = strlen(ptr);
+			copycount = 65;
+			prefix_length = 65 - strlen(ptr) - 3;
+			strncpy(file_name, filePath[i], prefix_length);
+			while (file_length >= 0)
+			{
+				file_name[copycount] = ptr[file_length];
+				copycount--;
+				file_length--;
+			}
+			for (j = 0; j < 3; j++, copycount--)
+				file_name[copycount] = '.';
+
+			file_name[65] = '\0';
+			strcpy(filePath[i], file_name);
+		}
 	}
 }
 
@@ -367,10 +389,7 @@ int main(void)
 			static const float ratio_adv_mode[] = { 0.75f, 0.22f, .03f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 3, ratio_adv_mode);
 			nk_spacing(ctx, 1);
-			if (nk_checkbox_label(ctx, "Advanced Mode", &advanced_mode_check))
-			{
-				fprintf(stdout, "Advanced mode selected\n");
-			}
+			nk_checkbox_label(ctx, "Advanced Mode", &advanced_mode_check);
 			//nk_spacing(ctx, 1);
 
 		//RADIO BUTTON 1 
