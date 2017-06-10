@@ -42,7 +42,7 @@
 char command[20];
 
 /*Global Variables for Drag and Drop files*/
-char filePath[50][250];
+char filePath[100][250];
 int fileCount;
 
 /* Width and Height of all frames*/
@@ -56,6 +56,9 @@ const GLint WIDTH_mainActivityWindow = 930, HEIGHT_mainActivityWindowSolo = 550,
 
 /*Tab constants*/
 static int tab_screen_height;
+
+/*Parameter Constants*/
+static int modifiedParams = 0;
 
 
 static void error_callback(int e, const char *d)
@@ -392,7 +395,20 @@ int main(void)
 			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 180, 3, ratio_rect_files);
 			nk_spacing(ctx, 1);
-			draw_file_rectangle_widget(ctx, droid);
+			if (nk_group_begin(ctx, "Files in extraction queue:", NK_WINDOW_BORDER | NK_WINDOW_TITLE ))
+			{
+				if (strcmp(filePath[0], "\0"))
+				{
+					int i = 0;
+					static int filenames[100];
+					nk_layout_row_static(ctx, 18, 380, 1);
+					for (i = 0; i < fileCount; ++i)
+						nk_selectable_label(ctx, (filenames[i]) ? filePath[i] : filePath[i], NK_TEXT_LEFT, &filenames[i]);
+				}
+				nk_group_end(ctx);
+
+			}
+			//draw_file_rectangle_widget(ctx, droid);
 			//nk_spacing(ctx, 1);
 
 
@@ -435,7 +451,29 @@ int main(void)
 			static const float ratio_rect_info[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 75, 3, ratio_rect_info);
 			nk_spacing(ctx, 1);
-			draw_info_rectangle_widget(ctx, droid);
+			if (nk_group_begin(ctx, "Extraction Info:", NK_WINDOW_BORDER))
+			{
+				if (strcmp(filePath[0], "\0"))
+				{
+					int i = 0;
+					static int filenames[100];
+					nk_layout_row_static(ctx, 18, 380, 1);
+					if (modifiedParams == 0)
+					{
+						nk_label(ctx, "Input Type: Auto", NK_TEXT_LEFT);
+						nk_label(ctx, "Output Type: Default(.srt)", NK_TEXT_LEFT);
+						nk_label(ctx, "Output Path: Default", NK_TEXT_LEFT);
+						nk_label(ctx, "Hardsubs Extraction: No", NK_TEXT_LEFT);
+					}
+					else {
+						for (i = 0; i < fileCount; ++i)
+							nk_selectable_label(ctx, (filenames[i]) ? filePath[i] : filePath[i], NK_TEXT_LEFT, &filenames[i]);
+					}
+				}
+				nk_group_end(ctx);
+
+			}
+			//draw_info_rectangle_widget(ctx, droid);
 			//nk_spacing(ctx, 1);
 
 
@@ -462,9 +500,9 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				strcpy(command, "ccextractorwin ");
+				/*strcpy(command, "ccextractorwin ");
 				strcat(command, filePath[0]);
-				system(command);
+				system(command);*/
 			}
 
 			//nk_layout_row_end(ctx);
