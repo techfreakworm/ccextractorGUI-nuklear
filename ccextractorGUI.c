@@ -12,6 +12,10 @@
 
 #include <GLFW/glfw3.h>
 
+#define PATH_LENGTH 66
+#define NAME_LENGTH 56
+#define PREFIX_LENGTH_TRUNCATED 10
+
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -69,32 +73,59 @@ static void error_callback(int e, const char *d)
 void drop_callback(GLFWwindow* window, int count, const char **paths)
 {
 	fileCount = count;
-	int i,j,file_length, copycount, prefix_length;
-	char file_name[66], *ptr;
+	int i,j,z,copycount, prefix_length, slash_length, fileNameTruncated_index;
+	char file_name[PATH_LENGTH], *ptr_slash, fileNameTruncated[NAME_LENGTH];
 	printf("Number of selected paths:%d\n", count);
-	for (i = 0; i < count; i++)
+	for (i = 0; i < fileCount; i++)
 	{
 		strcpy(filePath[i], paths[i]);
-		
-		if (strlen(filePath[i]) > 65)
+		if (strlen(filePath[i]) >= PATH_LENGTH - 1)
 		{
-
-			ptr = strrchr(filePath[i], '/');
-			file_length = strlen(ptr);
-			copycount = 65;
-			prefix_length = 65 - strlen(ptr) - 3;
-			strncpy(file_name, filePath[i], prefix_length);
-			while (file_length >= 0)
+			ptr_slash = strrchr(filePath[i], '/');
+			slash_length = strlen(ptr_slash);
+			if (slash_length >= NAME_LENGTH)
 			{
-				file_name[copycount] = ptr[file_length];
-				copycount--;
-				file_length--;
-			}
-			for (j = 0; j < 3; j++, copycount--)
-				file_name[copycount] = '.';
+				fileNameTruncated_index = NAME_LENGTH - 1;
+				for (z = 0; z < 6; z++)
+				{
+					fileNameTruncated[fileNameTruncated_index] = ptr_slash[slash_length];
+					fileNameTruncated_index--;
+					slash_length--;
+				}
+				for (z = 0; z < 4; z++)
+				{
+					fileNameTruncated[fileNameTruncated_index] = '.';
+					fileNameTruncated_index--;
+				}
+				strncpy(fileNameTruncated, ptr_slash, 47);
 
-			file_name[65] = '\0';
-			strcpy(filePath[i], file_name);
+				strncpy(file_name, filePath[i], 7);
+				file_name[7] = '.';
+				file_name[8] = '.';
+				file_name[9] = '.';
+				file_name[10] = '\0';
+				file_name[11] = '\0';
+				file_name[12] = '\0';
+				strcat(file_name, fileNameTruncated);
+				strcpy(filePath[i], file_name);
+			}
+
+			else {
+				copycount = PATH_LENGTH - 1;
+				prefix_length = copycount - slash_length - 3;
+				strncpy(file_name, filePath[i], prefix_length);
+				while (slash_length >= 0)
+				{
+					file_name[copycount] = ptr_slash[slash_length];
+					copycount--;
+					slash_length--;
+				}
+				for (j = 0; j < 3; j++, copycount--)
+					file_name[copycount] = '.';
+
+				file_name[65] = '\0';
+				strcpy(filePath[i], file_name);
+			}
 		}
 	}
 }
@@ -294,8 +325,6 @@ int main(void)
 			if (advanced_mode_check)
 			{
 				static int current_tab = 0;
-				struct nk_vec2 item_padding;
-				struct nk_rect bounds;
 				enum tab_name { MAIN, INPUT, ADV_INPUT, OUTPUT, DECODERS, CREDITS, DEBUG, HDHOMERUN, BURNEDSUBS };
 				const char *names[] = { "Main", "Input", "Adavanced Input", "Output", "Decoders", "Credits", "Debug", "HDHomeRun", "BurnedSubs" };
 				float id = 0;
@@ -533,7 +562,7 @@ int main(void)
 			if (nk_button_label(ctx, "Progress Details"))
 			{
 				show_activity_check = nk_true;
-				exit;
+				exit(0);
 			}
 			nk_spacing(ctx, 1);
 
