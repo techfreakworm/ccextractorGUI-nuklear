@@ -81,7 +81,7 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 		strcpy(filePath[i], paths[i]);
 		if (strlen(filePath[i]) >= PATH_LENGTH - 1)
 		{
-			ptr_slash = strrchr(filePath[i], '/');
+			ptr_slash = strrchr(filePath[i], '\\');
 			slash_length = strlen(ptr_slash);
 			if (slash_length >= NAME_LENGTH)
 			{
@@ -576,7 +576,7 @@ int main(void)
 			if (screenWidth != 930 || screenHeight != 650)
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 550);
-			terminal(ctx, 0, 550, 530, 100);
+			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
 			preview(ctx, 530, 550, 400, 100);
 		}
 		if (show_activity_check && show_preview_check && !show_terminal_check)
@@ -591,13 +591,13 @@ int main(void)
 			if (screenWidth != 930 || screenHeight != 650)
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 650);
-			terminal(ctx, 0, 550, 530, 100);
+			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
 		}
 		if (show_terminal_check && show_preview_check && !show_activity_check)
 		{
 			if (screenWidth != 930 || screenHeight != 650)
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
-			terminal(ctx, 0, 550, 530, 100);
+			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
 			preview(ctx, 530, 0, 400, 650);
 		}
 		if (show_activity_check && !show_preview_check && !show_terminal_check)
@@ -610,7 +610,7 @@ int main(void)
 		{
 			if (screenHeight != 650 || screenWidth == 930)
 				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
-			terminal(ctx, 0, 550, 530, 100);
+			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
 		}
 		if (show_preview_check && !show_terminal_check && !show_activity_check)
 		{
