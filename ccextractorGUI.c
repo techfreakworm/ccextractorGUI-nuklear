@@ -40,8 +40,6 @@
 #include "activity.c"
 #include "terminal.c"
 #include "preview.c"
-
-
 /*Trigger command for CLI*/
 char command[20];
 
@@ -81,7 +79,7 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 		strcpy(filePath[i], paths[i]);
 		if (strlen(filePath[i]) >= PATH_LENGTH - 1)
 		{
-			ptr_slash = strrchr(filePath[i], '\\');
+			ptr_slash = strrchr(filePath[i], '/');
 			slash_length = strlen(ptr_slash);
 			if (slash_length >= NAME_LENGTH)
 			{
@@ -132,59 +130,59 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 
 
 /*Rectangle to hold file names*/
-void draw_file_rectangle_widget(struct nk_context *ctx, struct nk_font *font)
-{
-	struct nk_command_buffer *canvas;
-	struct nk_input *input = &ctx->input;
-	canvas = nk_window_get_canvas(ctx);
-
-	struct nk_rect space;
-	enum nk_widget_layout_states state;
-	state = nk_widget(&space, ctx);
-	if (!state) return;
-
-	/*if (state != NK_WIDGET_ROM)
-	update_your_widget_by_user_input(...);*/
-	nk_fill_rect(canvas, space, 5, nk_rgb(88, 81, 96));
-	if (!strcmp(filePath[0], "\0")) {
-		space.y = space.y + (space.h / 2) -10;
-		space.x = space.x + 90;
-		nk_draw_text(canvas, space, "Drag and Drop files here for Extraction.", 40, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
-	}
-	else {
-		for (int i = 0; i < fileCount; i++)
-		{
-			nk_draw_text(canvas, space, filePath[i], strlen(filePath[i]), &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
-			space.y = space.y + 20;
-		}
-	}
-	
-}
+//void draw_file_rectangle_widget(struct nk_context *ctx, struct nk_font *font)
+//{
+//	struct nk_command_buffer *canvas;
+//	struct nk_input *input = &ctx->input;
+//	canvas = nk_window_get_canvas(ctx);
+//
+//	struct nk_rect space;
+//	enum nk_widget_layout_states state;
+//	state = nk_widget(&space, ctx);
+//	if (!state) return;
+//
+//	/*if (state != NK_WIDGET_ROM)
+//	update_your_widget_by_user_input(...);*/
+//	nk_fill_rect(canvas, space, 5, nk_rgb(88, 81, 96));
+//	if (!strcmp(filePath[0], "\0")) {
+//		space.y = space.y + (space.h / 2) -10;
+//		space.x = space.x + 90;
+//		nk_draw_text(canvas, space, "Drag and Drop files here for Extraction.", 40, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+//	}
+//	else {
+//		for (int i = 0; i < fileCount; i++)
+//		{
+//			nk_draw_text(canvas, space, filePath[i], strlen(filePath[i]), &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+//			space.y = space.y + 20;
+//		}
+//	}
+//	
+//}
 
 /*Rectangle to hold extraction info*/
-void draw_info_rectangle_widget(struct nk_context *ctx, struct nk_font *font)
-{
-	struct nk_command_buffer *canvas;
-	struct nk_input *input = &ctx->input;
-	canvas = nk_window_get_canvas(ctx);
-
-	struct nk_rect space;
-	enum nk_widget_layout_states state;
-	state = nk_widget(&space, ctx);
-	if (!state) return;
-
-	/*if (state != NK_WIDGET_ROM)
-	update_your_widget_by_user_input(...);*/
-	nk_fill_rect(canvas, space, 5, nk_rgb(88, 81, 96));
-	space.x = space.x + 3;
-	nk_draw_text(canvas, space, "Input Type: Auto", 16, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
-	space.y = space.y + 20;
-	nk_draw_text(canvas, space, "Output Type: Default(.srt)", 26, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
-	space.y = space.y + 20;
-	nk_draw_text(canvas, space, "Output Path: Default", 20, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
-	space.y = space.y + 20;
-	nk_draw_text(canvas, space, "Hardsubs Extraction: Yes", 24, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
-}
+//void draw_info_rectangle_widget(struct nk_context *ctx, struct nk_font *font)
+//{
+//	struct nk_command_buffer *canvas;
+//	struct nk_input *input = &ctx->input;
+//	canvas = nk_window_get_canvas(ctx);
+//
+//	struct nk_rect space;
+//	enum nk_widget_layout_states state;
+//	state = nk_widget(&space, ctx);
+//	if (!state) return;
+//
+//	/*if (state != NK_WIDGET_ROM)
+//	update_your_widget_by_user_input(...);*/
+//	nk_fill_rect(canvas, space, 5, nk_rgb(88, 81, 96));
+//	space.x = space.x + 3;
+//	nk_draw_text(canvas, space, "Input Type: Auto", 16, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+//	space.y = space.y + 20;
+//	nk_draw_text(canvas, space, "Output Type: Default(.srt)", 26, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+//	space.y = space.y + 20;
+//	nk_draw_text(canvas, space, "Output Path: Default", 20, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+//	space.y = space.y + 20;
+//	nk_draw_text(canvas, space, "Hardsubs Extraction: Yes", 24, &font->handle, nk_rgb(88, 81, 96), nk_rgb(0, 0, 0));
+//}
 
 int main(void)
 {
@@ -216,6 +214,9 @@ int main(void)
 	struct nk_font_atlas *font_atlas;
 	nk_glfw3_font_stash_begin(&font_atlas);
 	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "fonts/Roboto-Regular.ttf", 16, 0);
+	struct nk_font *droid_big = nk_font_atlas_add_from_file(font_atlas, "fonts/Roboto-Regular.ttf", 25, 0);
+	struct nk_font *droid_head = nk_font_atlas_add_from_file(font_atlas, "fonts/Roboto-Regular.ttf", 20, 0);
+
 	nk_glfw3_font_stash_end();
 	nk_style_set_font(ctx, &droid->handle);
 
@@ -234,6 +235,7 @@ int main(void)
 		nk_glfw3_new_frame();
 
 		//Popups
+		static int show_progress_details = nk_false;
 		static int show_about_ccx = nk_false;
 		static int show_getting_started = nk_false;
 		static int show_preferences_network = nk_false;
@@ -276,45 +278,15 @@ int main(void)
 			
 		//Network Settings
 			if (show_preferences_network)
-			{
-				static struct nk_rect s = { 20,100,300,190 };
-				if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Network Settings", NK_WINDOW_CLOSABLE, s))
-				{
-					nk_layout_row_dynamic(ctx, 20, 1);
-					nk_label(ctx, "Network Settings will come here!", NK_TEXT_LEFT);
-					nk_popup_end(ctx);
-				}
-				else
-					show_preferences_network = nk_false;
-			}
+				draw_network_popup(ctx, &show_preferences_network);
 
 		//About CCExtractor Popup
 			if (show_about_ccx)
-			{
-				static struct nk_rect s = { 20,100,300,190 };
-				if (nk_popup_begin(ctx, NK_POPUP_STATIC, "About CCExtractor", NK_WINDOW_CLOSABLE, s))
-				{
-					nk_layout_row_dynamic(ctx, 20, 1);
-					nk_label(ctx, "Information about CCExtractor will come here!", NK_TEXT_LEFT);
-					nk_popup_end(ctx);
-				}
-				else
-					show_about_ccx = nk_false;
-			}
+				draw_about_ccx_popup(ctx, &show_about_ccx, &droid_big->handle, &droid_head->handle);
 
 		//Getting Started
 			if (show_getting_started)
-			{
-				static struct nk_rect s = { 20,100,300,190 };
-				if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Getting Started", NK_WINDOW_CLOSABLE, s))
-				{
-					nk_layout_row_dynamic(ctx, 20, 1);
-					nk_label(ctx, "Getting Started information about CCX will come here!", NK_TEXT_LEFT);
-					nk_popup_end(ctx);
-				}
-				else
-					show_getting_started = nk_false;
-			}
+				draw_getting_started_popup(ctx, &show_getting_started);
 
 			nk_layout_row_end(ctx);
 			nk_menubar_end(ctx);
@@ -353,7 +325,7 @@ int main(void)
 				/*Body*/
 
 				nk_layout_row_dynamic(ctx, tab_screen_height, 1);
-				if (nk_group_begin(ctx, "Notebook", 0))
+				if (nk_group_begin(ctx, "Advanced Tabs", 0))
 				{
 					nk_style_pop_vec2(ctx);
 					switch (current_tab) {
@@ -362,51 +334,35 @@ int main(void)
 						break;
 
 					case INPUT:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Advanced Input", NK_TEXT_LEFT);
+						draw_input_tab(ctx, &tab_screen_height);
 						break;
 
 					case ADV_INPUT:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Advanced input -2", NK_TEXT_LEFT);
+						draw_advanced_input_tab(ctx, &tab_screen_height);
 						break;
 
 					case OUTPUT:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Output", NK_TEXT_LEFT);
+						draw_output_tab(ctx, &tab_screen_height);
 						break;
 
 					case DECODERS:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Decoders", NK_TEXT_LEFT);
+						draw_decoders_tab(ctx, &tab_screen_height);
 						break;
 
 					case CREDITS:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Credits", NK_TEXT_LEFT);
+						draw_credits_tab(ctx, &tab_screen_height);
 						break;
 
 					case DEBUG:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Debug", NK_TEXT_LEFT);
+						draw_debug_tab(ctx, &tab_screen_height);
 						break;
 
 					case HDHOMERUN:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "HD Home RUn", NK_TEXT_LEFT);
+						draw_hd_homerun_tab(ctx, &tab_screen_height);
 						break;
 
 					case BURNEDSUBS:
-						tab_screen_height = 472;
-						nk_layout_row_dynamic(ctx, 30, 1);
-						nk_label(ctx, "Burned Subtitles", NK_TEXT_LEFT);
+						draw_burned_subs_tab(ctx, &tab_screen_height);
 						break;
 					}
 					nk_group_end(ctx);
@@ -419,7 +375,6 @@ int main(void)
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 3, ratio_adv_mode);
 			nk_spacing(ctx, 1);
 			nk_checkbox_label(ctx, "Advanced Mode", &advanced_mode_check);
-			//nk_spacing(ctx, 1);
 
 		//RADIO BUTTON 1 
 			static const float ratio_button[] = { .10f, .90f };
@@ -456,10 +411,6 @@ int main(void)
 				nk_group_end(ctx);
 
 			}
-			//draw_file_rectangle_widget(ctx, droid);
-			//nk_spacing(ctx, 1);
-
-
 
 		//RadioButton 2 along with combobox
 			static const float ratio_port[] = { 0.10f,0.20f,0.20f,0.20f,0.20f,0.10f };
@@ -513,16 +464,11 @@ int main(void)
 						nk_label(ctx, "Output Path: Default", NK_TEXT_LEFT);
 						nk_label(ctx, "Hardsubs Extraction: No", NK_TEXT_LEFT);
 					}
-					else {
-						for (i = 0; i < fileCount; ++i)
-							nk_selectable_label(ctx, (filenames[i]) ? filePath[i] : filePath[i], NK_TEXT_LEFT, &filenames[i]);
-					}
+				
 				}
 				nk_group_end(ctx);
 
 			}
-			//draw_info_rectangle_widget(ctx, droid);
-			//nk_spacing(ctx, 1);
 
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
@@ -531,20 +477,11 @@ int main(void)
 			static nk_size cursor = 0;
 			static const float ratio_progress[] = { 0.10f,0.03f,0.57f,0.03f,0.17f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_progress);
-			//nk_layout_row_dynamic(ctx, 30, 1);
-			//nk_layout_row_push(ctx, 50);
 			nk_spacing(ctx, 1);
 			nk_spacing(ctx, 1);
-			//nk_layout_row_push(ctx, 295);
 			nk_progress(ctx, &cursor, 101, nk_true);
 
 			//Extract Button
-			//	nk_layout_row_push(ctx, 50);
-				//nk_spacing(ctx, 1);
-				//nk_layout_row_push(ctx, 100);
-				/*static const float extract_ratio[] = { 0.80f, 0.20f };
-				nk_layout_row(ctx, NK_DYNAMIC, 30, 2, extract_ratio);
-				nk_spacing(ctx, 1);*/
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
@@ -553,18 +490,21 @@ int main(void)
 				system(command);*/
 			}
 
-			//nk_layout_row_end(ctx);
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
+
 			//PROGRESS_DETAILS_BUTTON
 			nk_layout_row_dynamic(ctx, 20, 3);
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Progress Details"))
 			{
-				show_activity_check = nk_true;
-				exit(0);
+				show_progress_details = nk_true;
 			}
 			nk_spacing(ctx, 1);
+
+			//PROGRESS_DETAILS_POPUP
+			if (show_progress_details)
+				draw_progress_details_popup(ctx, &show_progress_details);
 
 		}
 		nk_end(ctx);

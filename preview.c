@@ -1,6 +1,7 @@
 #ifndef NK_IMPLEMENTATION
 #include "nuklear_lib/nuklear.h"
-#endif
+#endif // !NK_IMPLEMENTATION
+
 static int
 preview(struct nk_context *ctx, int x, int y, int width, int height)
 {
