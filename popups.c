@@ -2,33 +2,99 @@
 #include "nuklear_lib/nuklear.h"
 #endif // !NK_IMPLEMENTATION
 
-draw_network_popup(struct nk_context *ctx, int *show_preferences_network)
+void draw_network_popup(struct nk_context *ctx, int *show_preferences_network)
 {
+	const float save_ok_ratio[] = { 0.8f,0.1f,0.1f };
+	const float udp_tcp_ratio[] = { 0.45f,0.1f,0.45f };
+	static char udp_ipv4_buffer[30];
+	static int udp_ipv4_len[30];
+	static char tcp_pass_buf[30];
+	static int tcp_pass_len[30];
+	static char tcp_desc_buf[30];
+	static int tcp_desc_len[30];
+	static char send_port_buf[30];
+	static int send_port_len[30];
+	static char send_host_buf[30];
+	static int send_host_len[30];
+	const char network_attr[][30] = { "-udp port:", "-udp [host:]port:","-sendto host[:port]:","-tcp port:","-tcppassword password:", "-tcpdesc description:" };
 	static struct nk_rect s = { 20,30,480,500 };
-	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Network Settings", NK_WINDOW_CLOSABLE, s))
+	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Network Settings", NK_WINDOW_CLOSABLE|NK_WINDOW_NO_SCROLLBAR, s))
 	{
-		nk_layout_row_dynamic(ctx, 20, 1);
-		nk_label(ctx, "Network Settings will come here!", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 220, 1);
+		if(nk_group_begin(ctx, "Receive", NK_WINDOW_TITLE ))
+		{
+			nk_layout_row(ctx, NK_DYNAMIC, 21, 3, udp_tcp_ratio);
+			nk_spacing(ctx, 1);
+			nk_label(ctx, "UDP:", NK_TEXT_CENTERED);
+			nk_layout_row_static(ctx, 20, 200, 2);
+			nk_label(ctx, "Hostname/IPv4 Address:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, udp_ipv4_buffer, &udp_ipv4_len, 25, nk_filter_default);
+
+			nk_layout_row(ctx, NK_DYNAMIC, 21, 3, udp_tcp_ratio);
+			nk_spacing(ctx, 1);
+			nk_label(ctx, "TCP:", NK_TEXT_CENTERED);
+			nk_layout_row_static(ctx, 20, 200, 2);
+			nk_label(ctx, "Password:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, tcp_pass_buf, &tcp_pass_len, 25, nk_filter_default);
+			nk_layout_row_static(ctx, 20, 200, 2);
+			nk_label(ctx, "Description:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, tcp_desc_buf, &tcp_desc_len, 25, nk_filter_default);
+
+			nk_group_end(ctx);
+		}
+
+		nk_layout_row_dynamic(ctx, 200, 1);
+		if (nk_group_begin(ctx, "Send", NK_WINDOW_TITLE ))
+		{
+			nk_layout_row(ctx, NK_DYNAMIC, 21, 3, udp_tcp_ratio);
+			nk_spacing(ctx, 1);
+			nk_label(ctx, "Send to:", NK_TEXT_CENTERED);
+			nk_layout_row_static(ctx, 20, 200, 2);
+			nk_label(ctx, "Port:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, send_port_buf, &send_port_len, 25, nk_filter_default);
+			nk_layout_row_static(ctx, 20, 200, 2);
+			nk_label(ctx, "Host:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, send_host_buf, &send_host_len, 25, nk_filter_default);
+
+			nk_group_end(ctx);
+		}
+
+		/*nk_layout_row_static(ctx, 20, 200, 2);
+		nk_label(ctx, network_attr[5], NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, text_buffer[5], &text_len[5], 50, nk_filter_default);*/
+	
+		//OK Button
+		nk_layout_row(ctx, NK_DYNAMIC, 27, 3, save_ok_ratio);
+		nk_spacing(ctx, 1);
+		if (nk_button_label(ctx, "Save")) {
+			*show_preferences_network = nk_false;
+			nk_popup_close(ctx);
+		}
+		if (nk_button_label(ctx, "OK")) {
+			*show_preferences_network = nk_false;
+			nk_popup_close(ctx);
+		}
+
 		nk_popup_end(ctx);
 	}
 	else
 		*show_preferences_network = nk_false;
 }
 
-draw_getting_started_popup(struct nk_context *ctx, int *show_getting_started)
+void draw_getting_started_popup(struct nk_context *ctx, int *show_getting_started)
 {
 	static struct nk_rect s = { 20,30,480,500 };
 	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Getting Started", NK_WINDOW_CLOSABLE, s))
 	{
-		nk_layout_row_dynamic(ctx, 20, 1);
-		nk_label(ctx, "Getting Started information about CCX will come here!", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 80, 1);
+		nk_label_wrap(ctx, "Getting Started information about CCX will come here! This popup will be populated at the end.");
 		nk_popup_end(ctx);
 	}
 	else
 		*show_getting_started = nk_false;
 }
 
-draw_about_ccx_popup(struct nk_context *ctx, int *show_about_ccx, struct nk_user_font *droid_big, struct nk_user_font *droid_head)
+void draw_about_ccx_popup(struct nk_context *ctx, int *show_about_ccx, struct nk_user_font *droid_big, struct nk_user_font *droid_head)
 {
 	const float ccx_ratio[] = { 0.3f,0.4f,0.3f };
 	const float ok_ratio[] = { 0.9f,0.1f };
@@ -158,13 +224,13 @@ draw_about_ccx_popup(struct nk_context *ctx, int *show_about_ccx, struct nk_user
 		*show_about_ccx = nk_false;
 }
 
-draw_progress_details_popup(struct nk_context *ctx, int *show_progress_details)
+void draw_progress_details_popup(struct nk_context *ctx, int *show_progress_details)
 {
 	static struct nk_rect s = { 20,30,480,500 };
 	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Progress Details of Extraction", NK_WINDOW_CLOSABLE, s))
 	{
-		nk_layout_row_dynamic(ctx, 20, 1);
-		nk_label(ctx, "Progress Detail will come here!", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 40, 1);
+		nk_label_wrap(ctx, "Progress Detail will come here!", NK_TEXT_LEFT);
 		nk_popup_end(ctx);
 	}
 	else

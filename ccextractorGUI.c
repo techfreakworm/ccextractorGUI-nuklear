@@ -240,6 +240,7 @@ int main(void)
 		static int show_getting_started = nk_false;
 		static int show_preferences_network = nk_false;
 
+
 		//GUI
 		if (nk_begin(ctx, "CCExtractor", nk_rect(0, 0, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow),
 			NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BACKGROUND))
@@ -429,16 +430,10 @@ int main(void)
 			nk_label(ctx, " stream, on port:", NK_TEXT_LEFT);
 
 			//RADDIO BUTTON 2, TEXTEDIT FOR ENTERING PORT NUMBER
-			static int port_num;
-			static int *current = &port_num;
-			{
-				int len;
-				char buffer[10];
-				len = snprintf(buffer, 8, "%d", *current);
-				nk_edit_string(ctx, NK_EDIT_SIMPLE, buffer, &len, 8, nk_filter_ascii);
-				buffer[len] = 0;
-				*current = atoi(buffer);
-			}
+
+			static int len;
+			static char buffer[10];
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, buffer, &len, 8, nk_filter_decimal);
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
 
