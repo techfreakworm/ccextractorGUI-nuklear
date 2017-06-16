@@ -37,9 +37,11 @@
 //#define MIN(a,b) ((a) < (b) ? (a) : (b))
 //#define MAX(a,b) ((a) < (b) ? (b) : (a))
 //#define LEN(a) (sizeof(a)/sizeof(a)[0])
+#include "tabs.h"
 #include "activity.c"
 #include "terminal.c"
 #include "preview.c"
+
 /*Trigger command for CLI*/
 char command[20];
 
@@ -186,6 +188,7 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 
 int main(void)
 {
+
 	//Platform
 	static GLFWwindow *win;
 	struct nk_context *ctx;
@@ -226,6 +229,10 @@ int main(void)
 	static int show_activity_check = nk_false;
 	static int advanced_mode_check = nk_false;
 	static int file_extension_check = nk_true;
+
+	/*Settigs and tab options*/
+	struct output_tab output;
+	setup_output_tab(&output);
 
 	/*Main GUI loop*/
 	while (!glfwWindowShouldClose(win))
@@ -343,7 +350,7 @@ int main(void)
 						break;
 
 					case OUTPUT:
-						draw_output_tab(ctx, &tab_screen_height);
+						draw_output_tab(ctx, &tab_screen_height, &output);
 						break;
 
 					case DECODERS:
@@ -390,10 +397,7 @@ int main(void)
 			//CHECKBOX FOR FILE TYPES
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
 			nk_spacing(ctx, 1);
-			if (nk_checkbox_label(ctx, "Check for common video file extensions", &file_extension_check))
-			{
-				fprintf(stdout, "Will check for common video extensions with value:%d\n", file_extension_check);
-			}
+			nk_checkbox_label(ctx, "Check for common video file extensions", &file_extension_check);
 
 			//RECTANGLE-FILES
 			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
@@ -480,9 +484,7 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				/*strcpy(command, "ccextractorwin ");
-				strcat(command, filePath[0]);
-				system(command);*/
+				printf("%s", output.filename);
 			}
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
