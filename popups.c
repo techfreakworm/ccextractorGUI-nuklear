@@ -1,6 +1,8 @@
 #ifndef NK_IMPLEMENTATION
 #include "nuklear_lib/nuklear.h"
 #endif // !NK_IMPLEMENTATION
+#include "tabs.h"
+#include "popups.h"
 
 void draw_network_popup(struct nk_context *ctx, int *show_preferences_network)
 {
@@ -235,4 +237,26 @@ void draw_progress_details_popup(struct nk_context *ctx, int *show_progress_deta
 	}
 	else
 		*show_progress_details = nk_false;
+}
+
+void draw_color_popup(struct nk_context *ctx, struct output_tab *output)
+{
+	static struct nk_rect s = { 250,250,200,230 };
+	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Color Picker", NK_WINDOW_TITLE |NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER, s))
+	{
+		nk_layout_row_dynamic(ctx, 160, 1);
+		output->color_rgb = nk_color_picker(ctx, output->color_rgb, NK_RGBA);
+		
+		nk_layout_row_dynamic(ctx, 25, 3);
+		nk_spacing(ctx, 1);
+		if (nk_button_label(ctx, "OK")) {
+			output->color_popup = nk_false;
+			nk_popup_close(ctx);
+		}
+		nk_spacing(ctx, 1);
+
+		nk_popup_end(ctx);
+	}
+	else
+		output->color_popup = nk_false;
 }

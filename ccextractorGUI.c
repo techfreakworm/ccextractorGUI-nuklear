@@ -41,6 +41,7 @@
 #include "activity.c"
 #include "terminal.c"
 #include "preview.c"
+#include "popups.h"
 
 /*Trigger command for CLI*/
 char command[20];
@@ -296,10 +297,16 @@ int main(void)
 			if (show_getting_started)
 				draw_getting_started_popup(ctx, &show_getting_started);
 
+		//Color Popup
+			if (output.color_popup)
+				draw_color_popup(ctx, &output);
+
 			nk_layout_row_end(ctx);
 			nk_menubar_end(ctx);
 			nk_layout_space_begin(ctx, NK_STATIC, 15, 1);
 			nk_layout_space_end(ctx);
+
+		
 
 			/*TABS TRIGGERED IN ADVANCED MODE FLAG*/
 			if (advanced_mode_check)
@@ -333,7 +340,7 @@ int main(void)
 				/*Body*/
 
 				nk_layout_row_dynamic(ctx, tab_screen_height, 1);
-				if (nk_group_begin(ctx, "Advanced Tabs", 0))
+				if (nk_group_begin(ctx, "Advanced Tabs", NK_WINDOW_NO_SCROLLBAR))
 				{
 					nk_style_pop_vec2(ctx);
 					switch (current_tab) {
@@ -484,7 +491,7 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				printf("%s", output.filename);
+				printf("%s\n%d\n", output.filename, output.delay_sec);
 			}
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
