@@ -1,5 +1,6 @@
 #ifndef NK_IMPLEMENTATION
 #include "nuklear_lib/nuklear.h"
+#include <stdio.h>
 #endif // !NK_IMPLEMENTATION
 #include "tabs.h"
 #include "popups.h"
@@ -250,6 +251,7 @@ void draw_color_popup(struct nk_context *ctx, struct output_tab *output)
 		nk_layout_row_dynamic(ctx, 25, 3);
 		nk_spacing(ctx, 1);
 		if (nk_button_label(ctx, "OK")) {
+			show_color_from_picker = nk_true;
 			output->color_popup = nk_false;
 			nk_popup_close(ctx);
 		}

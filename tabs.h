@@ -1,3 +1,5 @@
+/*Global variable for output tab*/
+int show_color_from_picker;
 
 /*Data containers for other functions*/
 
@@ -38,9 +40,42 @@ struct output_tab
 	int roll_limit;
 };
 
+struct time {
+	int hours, minutes, seconds;
+};
+
+struct input_tab {
+	//General
+	char **type;
+	int type_select;
+	int is_split;
+	int is_live_stream;
+	int wait_data_sec;
+	//Timing
+	int is_process_from;
+	int is_process_until;
+	struct time from_time;
+	struct time until_time;
+	//Elementary Stream
+	enum stream_type {AUTO_DETECT,STREAM_TYPE,STREAM_PID} elementary_stream;
+	int is_assume_mpeg;
+	int stream_type;
+	long stream_pid;
+	int mpeg_type;
+	//Teletext
+	enum { AUTO_DECODE, FORCE, DISABLE } teletext_decoder;
+	int is_process_teletext_page;
+	int teletext_page_number;
+	//Screenfuls limit
+	enum { NO_LIMIT, LIMITED } is_limit;
+	int screenful_limit;
+	//Clock
+	enum { AUTO, GOP, PTS } clock_input;
+};
 
 /*Tab Functions*/
 void setup_output_tab(struct output_tab *output);
+void setup_input_tab(struct input_tab *input);
 
 void draw_input_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height);

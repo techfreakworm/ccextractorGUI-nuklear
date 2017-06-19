@@ -234,6 +234,8 @@ int main(void)
 	/*Settigs and tab options*/
 	struct output_tab output;
 	setup_output_tab(&output);
+	struct input_tab input;
+	setup_input_tab(&input);
 
 	/*Main GUI loop*/
 	while (!glfwWindowShouldClose(win))
@@ -349,7 +351,7 @@ int main(void)
 						break;
 
 					case INPUT:
-						draw_input_tab(ctx, &tab_screen_height);
+						draw_input_tab(ctx, &tab_screen_height, &input);
 						break;
 
 					case ADV_INPUT:
