@@ -37,11 +37,13 @@
 //#define MIN(a,b) ((a) < (b) ? (a) : (b))
 //#define MAX(a,b) ((a) < (b) ? (b) : (a))
 //#define LEN(a) (sizeof(a)/sizeof(a)[0])
+#include "ccextractorGUI.h"
 #include "tabs.h"
 #include "activity.c"
 #include "terminal.c"
 #include "preview.c"
 #include "popups.h"
+#include "command_builder.h"
 
 /*Trigger command for CLI*/
 char command[20];
@@ -82,7 +84,7 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 		strcpy(filePath[i], paths[i]);
 		if (strlen(filePath[i]) >= PATH_LENGTH - 1)
 		{
-			ptr_slash = strrchr(filePath[i], '/');
+			ptr_slash = strrchr(filePath[i], '\\');
 			slash_length = strlen(ptr_slash);
 			if (slash_length >= NAME_LENGTH)
 			{
@@ -193,8 +195,6 @@ int main(void)
 	//Platform
 	static GLFWwindow *win;
 	struct nk_context *ctx;
-	static const char *ports[] = { "UDP", "TCP" };
-	static int selected_port = 0;
 	int screenWidth, screenHeight;
 	//int winWidth, winHeight;
 
@@ -232,10 +232,15 @@ int main(void)
 	static int file_extension_check = nk_true;
 
 	/*Settigs and tab options*/
-	struct output_tab output;
+	static struct main main_settings;
+	setup_main_settings(&main_settings);
+	static struct network_popup network_settings;
+	setup_network_settings(&network_settings);
+	static struct output_tab output;
 	setup_output_tab(&output);
-	struct input_tab input;
+	static struct input_tab input;
 	setup_input_tab(&input);
+	static struct built_string command;
 
 	/*Main GUI loop*/
 	while (!glfwWindowShouldClose(win))
@@ -289,7 +294,7 @@ int main(void)
 			
 		//Network Settings
 			if (show_preferences_network)
-				draw_network_popup(ctx, &show_preferences_network);
+				draw_network_popup(ctx, &show_preferences_network, &network_settings);
 
 		//About CCExtractor Popup
 			if (show_about_ccx)
@@ -315,7 +320,7 @@ int main(void)
 			{
 				static int current_tab = 0;
 				enum tab_name { MAIN, INPUT, ADV_INPUT, OUTPUT, DECODERS, CREDITS, DEBUG, HDHOMERUN, BURNEDSUBS };
-				const char *names[] = { "Main", "Input", "Adavanced Input", "Output", "Decoders", "Credits", "Debug", "HDHomeRun", "BurnedSubs" };
+				const char *names[] = { "Main", "Input", "Advanced Input", "Output", "Decoders", "Credits", "Debug", "HDHomeRun", "BurnedSubs" };
 				float id = 0;
 				int i;
 
@@ -397,11 +402,12 @@ int main(void)
 			static const float ratio_button[] = { .10f, .90f };
 			enum { PORT, FILES };
 			static int op = FILES;
-			static int property = 20;
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
 			nk_spacing(ctx, 1);
-			if (nk_option_label(ctx, "Extract from files below:", op == FILES))
+			if (nk_option_label(ctx, "Extract from files below:", op == FILES)) {
 				op = FILES;
+				main_settings.port_or_files = FILES;
+			}
 
 			//CHECKBOX FOR FILE TYPES
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
@@ -430,23 +436,18 @@ int main(void)
 			static const float ratio_port[] = { 0.10f,0.20f,0.20f,0.20f,0.20f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_port);
 			nk_spacing(ctx, 1);
-			if (nk_option_label(ctx, "Extract from", op == PORT))
+			if (nk_option_label(ctx, "Extract from", op == PORT)) {
 				op = PORT;
-			if (nk_combo_begin_label(ctx, ports[selected_port], nk_vec2(85, 100)))
-			{
-				nk_layout_row_dynamic(ctx, 20, 1);
-				for (int i = 0; i < 2; i++)
-					if (nk_combo_item_label(ctx, ports[i], NK_TEXT_LEFT))
-						selected_port = i;
-				nk_combo_end(ctx);
+				main_settings.port_or_files = PORT;
 			}
+			main_settings.port_select = nk_combo(ctx, main_settings.port_type, 2, main_settings.port_select, 20, nk_vec2(85,100));
 			nk_label(ctx, " stream, on port:", NK_TEXT_LEFT);
 
 			//RADDIO BUTTON 2, TEXTEDIT FOR ENTERING PORT NUMBER
 
 			static int len;
 			static char buffer[10];
-			nk_edit_string(ctx, NK_EDIT_SIMPLE, buffer, &len, 8, nk_filter_decimal);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, main_settings.port_num, &main_settings.port_num_len, 8, nk_filter_decimal);
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
 
@@ -493,7 +494,7 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				printf("%s\n%d\n", output.filename, output.delay_sec);
+				
 			}
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
@@ -512,6 +513,9 @@ int main(void)
 			if (show_progress_details)
 				draw_progress_details_popup(ctx, &show_progress_details);
 
+			//build command string
+			command_builder(&command, &main_settings, &network_settings, &input, &output);
+
 		}
 		nk_end(ctx);
 
@@ -522,7 +526,7 @@ int main(void)
 			if (screenWidth != 930 || screenHeight != 650)
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 550);
-			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
+			terminal(ctx, 0, 550, 530, 100, &command.term_string);
 			preview(ctx, 530, 550, 400, 100);
 		}
 		if (show_activity_check && show_preview_check && !show_terminal_check)
@@ -537,13 +541,13 @@ int main(void)
 			if (screenWidth != 930 || screenHeight != 650)
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			activity(ctx, 530, 0, 400, 650);
-			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
+			terminal(ctx, 0, 550, 530, 100, &command.term_string);
 		}
 		if (show_terminal_check && show_preview_check && !show_activity_check)
 		{
 			if (screenWidth != 930 || screenHeight != 650)
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
-			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
+			terminal(ctx, 0, 550, 530, 100, &command.term_string);
 			preview(ctx, 530, 0, 400, 650);
 		}
 		if (show_activity_check && !show_preview_check && !show_terminal_check)
@@ -556,7 +560,7 @@ int main(void)
 		{
 			if (screenHeight != 650 || screenWidth == 930)
 				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
-			terminal(ctx, 0, 550, 530, 100, "cccextractor.exe 97.mpg");
+			terminal(ctx, 0, 550, 530, 100, &command.term_string);
 		}
 		if (show_preview_check && !show_terminal_check && !show_activity_check)
 		{
@@ -581,4 +585,15 @@ int main(void)
 	nk_glfw3_shutdown();
 	glfwTerminate();
 	return 0;
+}
+
+void setup_main_settings(struct main *main_settings)
+{
+	main_settings->is_check_common_extension = nk_false;
+	main_settings->port_num_len = 0;
+	main_settings->port_or_files = FILES;
+	main_settings->port_type = (char**)malloc(2 * sizeof(char*));
+	main_settings->port_type[0] = "UDP";
+	main_settings->port_type[1] = "TCP";
+	main_settings->port_select = 0;
 }

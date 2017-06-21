@@ -1,11 +1,26 @@
 #ifndef NK_IMPLEMENTATION
 #include "nuklear_lib/nuklear.h"
 #include <stdio.h>
+#include <string.h>
 #endif // !NK_IMPLEMENTATION
 #include "tabs.h"
 #include "popups.h"
 
-void draw_network_popup(struct nk_context *ctx, int *show_preferences_network)
+void setup_network_settings(struct network_popup *network_settings)
+{
+	strcpy(network_settings->udp_ipv4, "None");
+	network_settings->udp_ipv4_len = strlen(network_settings->udp_ipv4);
+	strcpy(network_settings->tcp_pass, "None");
+	network_settings->tcp_pass_len = strlen(network_settings->tcp_pass);
+	strcpy(network_settings->tcp_desc, "None");
+	network_settings->tcp_desc_len = strlen(network_settings->tcp_desc);
+	strcpy(network_settings->send_port, "None");
+	network_settings->send_port_len = strlen(network_settings->send_port);
+	strcpy(network_settings->send_host, "None");
+	network_settings->send_host_len = strlen(network_settings->send_host);
+}
+
+void draw_network_popup(struct nk_context *ctx, int *show_preferences_network, struct network_popup *network_settings)
 {
 	const float save_ok_ratio[] = { 0.8f,0.1f,0.1f };
 	const float udp_tcp_ratio[] = { 0.45f,0.1f,0.45f };
@@ -31,17 +46,17 @@ void draw_network_popup(struct nk_context *ctx, int *show_preferences_network)
 			nk_label(ctx, "UDP:", NK_TEXT_CENTERED);
 			nk_layout_row_static(ctx, 20, 200, 2);
 			nk_label(ctx, "Hostname/IPv4 Address:", NK_TEXT_LEFT);
-			nk_edit_string(ctx, NK_EDIT_SIMPLE, udp_ipv4_buffer, &udp_ipv4_len, 25, nk_filter_default);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, network_settings->udp_ipv4, &network_settings->udp_ipv4_len, 25, nk_filter_default);
 
 			nk_layout_row(ctx, NK_DYNAMIC, 21, 3, udp_tcp_ratio);
 			nk_spacing(ctx, 1);
 			nk_label(ctx, "TCP:", NK_TEXT_CENTERED);
 			nk_layout_row_static(ctx, 20, 200, 2);
 			nk_label(ctx, "Password:", NK_TEXT_LEFT);
-			nk_edit_string(ctx, NK_EDIT_SIMPLE, tcp_pass_buf, &tcp_pass_len, 25, nk_filter_default);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, network_settings->tcp_pass, &network_settings->tcp_pass_len, 25, nk_filter_default);
 			nk_layout_row_static(ctx, 20, 200, 2);
 			nk_label(ctx, "Description:", NK_TEXT_LEFT);
-			nk_edit_string(ctx, NK_EDIT_SIMPLE, tcp_desc_buf, &tcp_desc_len, 25, nk_filter_default);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, network_settings->tcp_desc, &network_settings->tcp_desc_len, 25, nk_filter_default);
 
 			nk_group_end(ctx);
 		}
@@ -54,10 +69,10 @@ void draw_network_popup(struct nk_context *ctx, int *show_preferences_network)
 			nk_label(ctx, "Send to:", NK_TEXT_CENTERED);
 			nk_layout_row_static(ctx, 20, 200, 2);
 			nk_label(ctx, "Port:", NK_TEXT_LEFT);
-			nk_edit_string(ctx, NK_EDIT_SIMPLE, send_port_buf, &send_port_len, 25, nk_filter_default);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, network_settings->send_port, &network_settings->send_port_len, 25, nk_filter_default);
 			nk_layout_row_static(ctx, 20, 200, 2);
 			nk_label(ctx, "Host:", NK_TEXT_LEFT);
-			nk_edit_string(ctx, NK_EDIT_SIMPLE, send_host_buf, &send_host_len, 25, nk_filter_default);
+			nk_edit_string(ctx, NK_EDIT_SIMPLE, network_settings->send_host, &network_settings->send_host_len, 25, nk_filter_default);
 
 			nk_group_end(ctx);
 		}
@@ -233,7 +248,7 @@ void draw_progress_details_popup(struct nk_context *ctx, int *show_progress_deta
 	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Progress Details of Extraction", NK_WINDOW_CLOSABLE, s))
 	{
 		nk_layout_row_dynamic(ctx, 40, 1);
-		nk_label_wrap(ctx, "Progress Detail will come here!", NK_TEXT_LEFT);
+		nk_label_wrap(ctx, "Progress Detail will come here!");
 		nk_popup_end(ctx);
 	}
 	else

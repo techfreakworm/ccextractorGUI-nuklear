@@ -8,7 +8,7 @@ terminal(struct nk_context *ctx, int x, int y, int width, int height, char *comm
 	if (nk_begin(ctx, "Terminal", nk_rect(x, y, width, height),
 		NK_WINDOW_TITLE ))
 	{
-		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_layout_row_dynamic(ctx, 60, 1);
 		nk_label_wrap(ctx, command);
 	}
 	nk_end(ctx);
