@@ -9,10 +9,10 @@
 #include "tabs.h"
 #include "command_builder.h"
 
-void command_builder(struct built_string *command, struct main *main_settings, struct network_popup *network_settings,struct input_tab *input, struct output_tab *output)
+void command_builder(struct built_string *command, struct main_tab *main_settings, struct network_popup *network_settings,struct input_tab *input, struct output_tab *output)
 {
 	static char buffer[1000];	
-	strcpy(buffer, "ccextractorwin --gui_mode_reports -autoprogram");
+	strcpy(buffer, "./ccextractor --gui_mode_reports -autoprogram");
 
 	/*INPUT COMMANDS*/
 	if (main_settings->port_or_files == FILES)
@@ -91,9 +91,30 @@ void command_builder(struct built_string *command, struct main *main_settings, s
 
 	if (main_settings->port_or_files == PORT)
 	{
-		if (!strcmp(main_settings->port_type[main_settings->port_select], "UDP")) {
+		switch (main_settings->port_select)
+		{
+		case 0:
 			strcat(buffer, " -udp ");
+			if (!strstr(network_settings->udp_ipv4, "None")) {
+				strncat(buffer, network_settings->udp_ipv4, network_settings->udp_ipv4_len);
+				strcat(buffer, ":");
+			}
 			strncat(buffer, main_settings->port_num, main_settings->port_num_len);
+			break;
+		case 1:
+			strcat(buffer, " -tcp ");
+			strncat(buffer, main_settings->port_num, main_settings->port_num_len);
+			if (!strstr(network_settings->tcp_pass, "None")) {
+				strcat(buffer, " -tcppassword ");
+				strncat(buffer, network_settings->tcp_pass, network_settings->tcp_pass_len);
+			}
+			if (!strstr(network_settings->tcp_desc, "None")) {
+				strcat(buffer, " -tcpdesc ");
+				strncat(buffer, network_settings->tcp_desc, network_settings->tcp_desc_len);
+			}
+			break;
+		default:
+			break;
 		}
 
 		if (input->is_live_stream) {

@@ -44,13 +44,17 @@
 #include "preview.c"
 #include "popups.h"
 #include "command_builder.h"
+#include "ccx_cli_thread.h"
+
+static struct main_tab main_settings;
 
 /*Trigger command for CLI*/
 char command[20];
 
 /*Global Variables for Drag and Drop files*/
-char filePath[100][250];
-int fileCount;
+
+static char filePath[100][250];
+static int fileCount;
 
 /* Width and Height of all frames*/
 const GLint WIDTH_mainPanelAndWindow = 530, HEIGHT_mainPanelandWindow = 550;
@@ -81,6 +85,13 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 	printf("Number of selected paths:%d\n", count);
 	for (i = 0; i < fileCount; i++)
 	{
+		printf("\n%d", main_settings.filename_count);
+		//Copy file path names to main_setting struct one by one
+		main_settings.filenames = (char **)realloc(main_settings.filenames, sizeof(char *));
+		main_settings.filenames[main_settings.filename_count] = paths[i];
+		main_settings.filename_count++;
+
+		//Truncate string to view in GUI
 		strcpy(filePath[i], paths[i]);
 		if (strlen(filePath[i]) >= PATH_LENGTH - 1)
 		{
@@ -131,6 +142,7 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 			}
 		}
 	}
+
 }
 
 
@@ -232,7 +244,6 @@ int main(void)
 	static int file_extension_check = nk_true;
 
 	/*Settigs and tab options*/
-	static struct main main_settings;
 	setup_main_settings(&main_settings);
 	static struct network_popup network_settings;
 	setup_network_settings(&network_settings);
@@ -423,10 +434,10 @@ int main(void)
 				if (strcmp(filePath[0], "\0"))
 				{
 					int i = 0;
-					static int filenames[100];
+					static int file[100];
 					nk_layout_row_static(ctx, 18, 380, 1);
 					for (i = 0; i < fileCount; ++i)
-						nk_selectable_label(ctx, (filenames[i]) ? filePath[i] : filePath[i], NK_TEXT_LEFT, &filenames[i]);
+						nk_selectable_label(ctx, (file[i]) ? filePath[i] : filePath[i], NK_TEXT_LEFT, &file[i]);
 				}
 				nk_group_end(ctx);
 
@@ -483,18 +494,23 @@ int main(void)
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
 			//PROGRESSBAR
-			static nk_size cursor = 0;
 			static const float ratio_progress[] = { 0.10f,0.03f,0.57f,0.03f,0.17f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_progress);
 			nk_spacing(ctx, 1);
 			nk_spacing(ctx, 1);
-			nk_progress(ctx, &cursor, 101, nk_true);
+			nk_progress(ctx, &main_settings.progress_cursor, 101, nk_true);
 
 			//Extract Button
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				
+				//printf("Path is:%s\n", main_settings.filenames[0]);
+				static struct args_extract extract_args;
+				extract_args.command_string = &command.term_string;
+				extract_args.file_string = &filePath[0];
+
+				int err = pthread_create(&(tid[0]), NULL, &extract_thread, (void *)&extract_args);
+				int err2 = pthread_create(&(tid[1]), NULL, &read_data_from_thread, (void *)&main_settings);
 			}
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
@@ -587,7 +603,7 @@ int main(void)
 	return 0;
 }
 
-void setup_main_settings(struct main *main_settings)
+void setup_main_settings(struct main_tab *main_settings)
 {
 	main_settings->is_check_common_extension = nk_false;
 	main_settings->port_num_len = 0;
