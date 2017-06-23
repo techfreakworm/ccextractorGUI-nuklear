@@ -36,12 +36,27 @@
     <ClCompile Include="tabs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="command_builder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ccx_cli_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tabs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="popups.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="command_builder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ccextractorGUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ccx_cli_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

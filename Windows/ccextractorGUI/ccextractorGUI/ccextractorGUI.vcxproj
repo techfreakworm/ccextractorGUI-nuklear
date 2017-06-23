@@ -90,14 +90,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Mayank\Documents\Visual Studio 2015\Projects\ccextractorGUI\Resources;C:\Users\Mayank\Documents\Visual Studio 2015\Projects\libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Mayank\Documents\Visual Studio 2015\Projects\ccextractorGUI\libs\lib\glfw-lib;C:\Users\Mayank\Documents\Visual Studio 2015\Projects\libs\lib\glew-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libs\lib;..\libs\lib\glfw-lib;..\libs\lib\glew-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;pthreadVSE2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -153,12 +153,17 @@
   <ItemGroup>
     <ClCompile Include="activity.c" />
     <ClCompile Include="ccextractorGUI.c" />
+    <ClCompile Include="ccx_cli_thread.c" />
+    <ClCompile Include="command_builder.c" />
     <ClCompile Include="popups.c" />
     <ClCompile Include="preview.c" />
     <ClCompile Include="tabs.c" />
     <ClCompile Include="terminal.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ccextractorGUI.h" />
+    <ClInclude Include="ccx_cli_thread.h" />
+    <ClInclude Include="command_builder.h" />
     <ClInclude Include="popups.h" />
     <ClInclude Include="tabs.h" />
   </ItemGroup>
