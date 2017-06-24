@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <time.h>
 
+
 #include <GLFW/glfw3.h>
 
 #define PATH_LENGTH 66
@@ -79,16 +80,22 @@ static void error_callback(int e, const char *d)
 
 void drop_callback(GLFWwindow* window, int count, const char **paths)
 {
+	char **more_filenames;
 	fileCount = count;
-	int i,j,z,copycount, prefix_length, slash_length, fileNameTruncated_index;
+	int i,j,k,z,copycount, prefix_length, slash_length, fileNameTruncated_index;
 	char file_name[PATH_LENGTH], *ptr_slash, fileNameTruncated[NAME_LENGTH];
 	printf("Number of selected paths:%d\n", count);
+
+	if(main_settings.filename_count == 0)
+		main_settings.filenames = malloc(count * sizeof(*main_settings.filenames));
+	if (main_settings.filename_count > 0)
+		main_settings.filenames = realloc(main_settings.filenames, (main_settings.filename_count + count) * sizeof(*main_settings.filenames));
 	for (i = 0; i < fileCount; i++)
 	{
 		printf("\n%d", main_settings.filename_count);
-		//Copy file path names to main_setting struct one by one
-		main_settings.filenames = (char **)realloc(main_settings.filenames, sizeof(char *));
-		main_settings.filenames[main_settings.filename_count] = paths[i];
+		
+		//main_settings.filenames[main_settings.filename_count] = malloc(sizeof(paths[i]));
+		main_settings.filenames[main_settings.filename_count] = strdup(paths[i]);
 		main_settings.filename_count++;
 
 		//Truncate string to view in GUI
@@ -504,13 +511,10 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				//printf("Path is:%s\n", main_settings.filenames[0]);
-				static struct args_extract extract_args;
-				extract_args.command_string = &command.term_string;
-				extract_args.file_string = &filePath[0];
-
-				int err = pthread_create(&(tid[0]), NULL, &extract_thread, (void *)&extract_args);
-				int err2 = pthread_create(&(tid[1]), NULL, &read_data_from_thread, (void *)&main_settings);
+				for (int i = 0; i < main_settings.filename_count; i++)
+					puts(main_settings.filenames[i]);
+				setup_and_create_thread(&main_settings, &command);
+				
 			}
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
@@ -531,6 +535,8 @@ int main(void)
 
 			//build command string
 			command_builder(&command, &main_settings, &network_settings, &input, &output);
+
+			
 
 		}
 		nk_end(ctx);
@@ -603,8 +609,10 @@ int main(void)
 	return 0;
 }
 
+
 void setup_main_settings(struct main_tab *main_settings)
 {
+	
 	main_settings->is_check_common_extension = nk_false;
 	main_settings->port_num_len = 0;
 	main_settings->port_or_files = FILES;
@@ -613,3 +621,8 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->port_type[1] = "TCP";
 	main_settings->port_select = 0;
 }
+
+//void truncate_path_string()
+//{
+//
+//}

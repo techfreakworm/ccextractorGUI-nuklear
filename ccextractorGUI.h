@@ -20,4 +20,5 @@ struct main_tab
 };
 
 void setup_main_settings(struct main_tab *main_settings);
+//void truncate_path_string();
 #endif //!CCEXTRACTORGUI_H
