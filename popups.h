@@ -1,6 +1,8 @@
 #ifndef POPUPS_H
 #define POPUPS_H
 
+#include "tabs.h"
+
 struct network_popup
 {
 	char udp_ipv4[30];

@@ -54,8 +54,6 @@ char command[20];
 
 /*Global Variables for Drag and Drop files*/
 
-static char filePath[100][250];
-static int fileCount;
 
 /* Width and Height of all frames*/
 const GLint WIDTH_mainPanelAndWindow = 530, HEIGHT_mainPanelandWindow = 550;
@@ -80,74 +78,21 @@ static void error_callback(int e, const char *d)
 
 void drop_callback(GLFWwindow* window, int count, const char **paths)
 {
-	char **more_filenames;
-	fileCount = count;
 	int i,j,k,z,copycount, prefix_length, slash_length, fileNameTruncated_index;
-	char file_name[PATH_LENGTH], *ptr_slash, fileNameTruncated[NAME_LENGTH];
+	
 	printf("Number of selected paths:%d\n", count);
 
 	if(main_settings.filename_count == 0)
 		main_settings.filenames = malloc(count * sizeof(*main_settings.filenames));
-	if (main_settings.filename_count > 0)
+	else
 		main_settings.filenames = realloc(main_settings.filenames, (main_settings.filename_count + count) * sizeof(*main_settings.filenames));
-	for (i = 0; i < fileCount; i++)
+	for (i = 0; i < count; i++)
 	{
 		printf("\n%d", main_settings.filename_count);
 		
 		//main_settings.filenames[main_settings.filename_count] = malloc(sizeof(paths[i]));
 		main_settings.filenames[main_settings.filename_count] = strdup(paths[i]);
 		main_settings.filename_count++;
-
-		//Truncate string to view in GUI
-		strcpy(filePath[i], paths[i]);
-		if (strlen(filePath[i]) >= PATH_LENGTH - 1)
-		{
-			ptr_slash = strrchr(filePath[i], '\\');
-			slash_length = strlen(ptr_slash);
-			if (slash_length >= NAME_LENGTH)
-			{
-				fileNameTruncated_index = NAME_LENGTH - 1;
-				for (z = 0; z < 6; z++)
-				{
-					fileNameTruncated[fileNameTruncated_index] = ptr_slash[slash_length];
-					fileNameTruncated_index--;
-					slash_length--;
-				}
-				for (z = 0; z < 4; z++)
-				{
-					fileNameTruncated[fileNameTruncated_index] = '.';
-					fileNameTruncated_index--;
-				}
-				strncpy(fileNameTruncated, ptr_slash, 47);
-
-				strncpy(file_name, filePath[i], 7);
-				file_name[7] = '.';
-				file_name[8] = '.';
-				file_name[9] = '.';
-				file_name[10] = '\0';
-				file_name[11] = '\0';
-				file_name[12] = '\0';
-				strcat(file_name, fileNameTruncated);
-				strcpy(filePath[i], file_name);
-			}
-
-			else {
-				copycount = PATH_LENGTH - 1;
-				prefix_length = copycount - slash_length - 3;
-				strncpy(file_name, filePath[i], prefix_length);
-				while (slash_length >= 0)
-				{
-					file_name[copycount] = ptr_slash[slash_length];
-					copycount--;
-					slash_length--;
-				}
-				for (j = 0; j < 3; j++, copycount--)
-					file_name[copycount] = '.';
-
-				file_name[65] = '\0';
-				strcpy(filePath[i], file_name);
-			}
-		}
 	}
 
 }
@@ -418,6 +363,7 @@ int main(void)
 
 		//RADIO BUTTON 1 
 			static const float ratio_button[] = { .10f, .90f };
+			static const float check_extension_ratio[] = { .10f, .65f, .15f, .10f };
 			enum { PORT, FILES };
 			static int op = FILES;
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
@@ -428,9 +374,45 @@ int main(void)
 			}
 
 			//CHECKBOX FOR FILE TYPES
-			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
+			static int add_remove_button = nk_false;
+			static int index_decrementer;
+			nk_layout_row(ctx, NK_DYNAMIC, 20, 4, check_extension_ratio);
 			nk_spacing(ctx, 1);
 			nk_checkbox_label(ctx, "Check for common video file extensions", &file_extension_check);
+			if (main_settings.filename_count > 0)
+			{
+				for (int i = 0; i < main_settings.filename_count; i++)
+				{
+					if (main_settings.is_file_selected[i]) {
+						add_remove_button = nk_true;
+						break;
+					}
+					else
+						add_remove_button = nk_false;
+				}
+				if (add_remove_button)
+				{
+
+					if (nk_button_label(ctx, "Remove")) {
+						index_decrementer = 0;
+						for (int i = main_settings.filename_count-1; i != -1; i--)
+							if (main_settings.is_file_selected[i]) {
+								remove_path_entry(&main_settings, i );
+								main_settings.is_file_selected[i] = nk_false;
+
+							}
+					}
+						
+				}
+
+				else
+					if (nk_button_label(ctx, "Clear"))
+					{
+						free(main_settings.filenames);
+						main_settings.filename_count = 0;
+					}
+			}
+
 
 			//RECTANGLE-FILES
 			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
@@ -438,13 +420,17 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_group_begin(ctx, "Files in extraction queue:", NK_WINDOW_BORDER | NK_WINDOW_TITLE ))
 			{
-				if (strcmp(filePath[0], "\0"))
+				if (main_settings.filename_count != 0)
 				{
 					int i = 0;
-					static int file[100];
 					nk_layout_row_static(ctx, 18, 380, 1);
-					for (i = 0; i < fileCount; ++i)
-						nk_selectable_label(ctx, (file[i]) ? filePath[i] : filePath[i], NK_TEXT_LEFT, &file[i]);
+					for (i = 0; i < main_settings.filename_count; ++i)
+						nk_selectable_label(ctx, truncate_path_string(main_settings.filenames[i]), NK_TEXT_LEFT, &main_settings.is_file_selected[i]);
+				}
+
+				else {
+					nk_layout_row_dynamic(ctx, 100, 1);
+					nk_label(ctx, "Drag and Drop files for extraction.", NK_TEXT_CENTERED);
 				}
 				nk_group_end(ctx);
 
@@ -479,7 +465,7 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_group_begin(ctx, "Extraction Info:", NK_WINDOW_BORDER))
 			{
-				if (strcmp(filePath[0], "\0"))
+				if (main_settings.filename_count != 0)
 				{
 					int i = 0;
 					static int filenames[100];
@@ -511,8 +497,7 @@ int main(void)
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
 			{
-				for (int i = 0; i < main_settings.filename_count; i++)
-					puts(main_settings.filenames[i]);
+
 				setup_and_create_thread(&main_settings, &command);
 				
 			}
@@ -622,7 +607,87 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->port_select = 0;
 }
 
-//void truncate_path_string()
-//{
-//
-//}
+char* truncate_path_string(char *filePath)
+{
+	char* file_path = strdup(filePath);
+	int i,j,z,slash_length, fileNameTruncated_index,copycount, prefix_length;
+	char file_name[PATH_LENGTH], *ptr_slash, fileNameTruncated[NAME_LENGTH];
+	//strcpy(filePath[i], paths[i]);
+	if (strlen(filePath) >= PATH_LENGTH - 1)
+	{
+		ptr_slash = strrchr(file_path, '/');
+		slash_length = strlen(ptr_slash);
+		if (slash_length >= NAME_LENGTH)
+		{
+			fileNameTruncated_index = NAME_LENGTH - 1;
+			for (z = 0; z < 6; z++)
+			{
+				fileNameTruncated[fileNameTruncated_index] = ptr_slash[slash_length];
+				fileNameTruncated_index--;
+				slash_length--;
+			}
+			for (z = 0; z < 4; z++)
+			{
+				fileNameTruncated[fileNameTruncated_index] = '.';
+				fileNameTruncated_index--;
+			}
+			strncpy(fileNameTruncated, ptr_slash, 47);
+
+			strncpy(file_name, file_path , 7);
+			file_name[7] = '.';
+			file_name[8] = '.';
+			file_name[9] = '.';
+			file_name[10] = '\0';
+			file_name[11] = '\0';
+			file_name[12] = '\0';
+			strcat(file_name, fileNameTruncated);
+			strcpy(file_path, file_name);
+		}
+
+		else {
+			copycount = PATH_LENGTH - 1;
+			prefix_length = copycount - slash_length - 3;
+			strncpy(file_name, file_path, prefix_length);
+			while (slash_length >= 0)
+			{
+				file_name[copycount] = ptr_slash[slash_length];
+				copycount--;
+				slash_length--;
+			}
+			for (j = 0; j < 3; j++, copycount--)
+				file_name[copycount] = '.';
+
+			file_name[65] = '\0';
+			strcpy(file_path, file_name);
+		}
+		return file_path;
+	}
+	else 
+		return filePath;
+}
+
+void remove_path_entry(struct main_tab *main_settings, int indexToRemove)
+{
+	//printf("Beginning processing. Array is currently: ");
+	//for (int i = 0; i < arraySize; ++i)
+	//	printf("%d ", (*array)[i]);
+	//printf("\n");
+
+		char** temp = malloc((main_settings->filename_count - 1) * sizeof(char *)); // allocate an array with a size 1 less than the current one
+
+		memmove(
+			temp,
+			main_settings->filenames,
+			(indexToRemove + 1) * sizeof(char *)); // copy everything BEFORE the index
+
+		memmove(
+			temp + indexToRemove,
+			(main_settings->filenames) + (indexToRemove + 1),
+			(main_settings->filename_count - indexToRemove) * sizeof(char *)); // copy everything AFTER the index
+																		
+		free(main_settings->filenames);
+		main_settings->filenames = temp;
+		main_settings->filename_count--;
+	
+
+}

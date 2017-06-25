@@ -1,5 +1,6 @@
 #include "ccx_cli_thread.h"
 #include "ccextractorGUI.h"
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -35,7 +36,7 @@ void* read_data_from_thread(void* read_args)
 	while (file == NULL) {
 		printf("Cannot open file! Trying again.\n");
 		file = fopen("gui_report.log", "r");
-		nanosleep(&time, NULL);  // ----> UNIX SPECIFIC
+		nanosleep(&time, NULL);   //----> UNIX SPECIFIC
 		//_sleep(10);  //----> WINDOWS SPECIFIC
 		wait++;
 		if (wait >= MAX_WAIT) {
@@ -77,6 +78,7 @@ void* feed_files_for_extraction(void* file_args)
 		pthread_attr_init(&attr_extract);
 		pthread_attr_init(&attr_read);
 		
+		extract_params->main_threadsettings->is_file_selected[i] = nk_true;
 		extract_args.file_string = extract_params->main_threadsettings->filenames[i];
 		int err1 = pthread_create(&tid_extract, &attr_extract, extract_thread, extract_params);
 		int err2 = pthread_create(&tid_read, &attr_read, read_data_from_thread, extract_params);
@@ -89,6 +91,8 @@ void* feed_files_for_extraction(void* file_args)
 		printf("Extract thread joined\n");
 		pthread_join(tid_read, NULL);
 		printf("Read thread joined\n");
+
+		extract_params->main_threadsettings->is_file_selected[i] = nk_false;
 
 		remove("gui_report.log");
 		remove("ccx.log");

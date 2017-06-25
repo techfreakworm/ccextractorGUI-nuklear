@@ -16,9 +16,12 @@ struct main_tab
 	int port_select;
 	char **filenames;
 	int filename_count;
+	int is_file_selected[1000];
 	nk_size progress_cursor;
 };
 
 void setup_main_settings(struct main_tab *main_settings);
-//void truncate_path_string();
+char* truncate_path_string(char *filePath);
+void remove_path_entry(struct main_tab *main_settings, int indexToRemove);
+
 #endif //!CCEXTRACTORGUI_H

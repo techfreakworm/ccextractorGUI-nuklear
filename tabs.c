@@ -1,7 +1,9 @@
 #ifndef NK_IMPLEMENTATION
 #include "nuklear_lib/nuklear.h"
-#include <stdio.h>
 #endif // !NK_IMPLEMENTATION
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "tabs.h"
 #include "popups.h"
 
