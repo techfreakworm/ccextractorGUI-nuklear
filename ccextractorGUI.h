@@ -17,6 +17,8 @@ struct main_tab
 	char **filenames;
 	int filename_count;
 	int is_file_selected[1000];
+	int is_file_browser_active;
+	int scaleWindowForFileBrowser;
 	nk_size progress_cursor;
 };
 

@@ -46,6 +46,11 @@
 #include "popups.h"
 #include "command_builder.h"
 #include "ccx_cli_thread.h"
+#include "file_browser.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 
 static struct main_tab main_settings;
 
@@ -178,6 +183,10 @@ int main(void)
 
 	//GUI
 
+	struct file_browser browser;
+	static const struct file_browser reset_browser;
+	struct media media;
+
 	ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
 	struct nk_font_atlas *font_atlas;
 	nk_glfw3_font_stash_begin(&font_atlas);
@@ -187,6 +196,8 @@ int main(void)
 
 	nk_glfw3_font_stash_end();
 	nk_style_set_font(ctx, &droid->handle);
+
+
 
 	//CHECKBOX VALUES
 	static int show_terminal_check = nk_false;
@@ -205,12 +216,28 @@ int main(void)
 	setup_input_tab(&input);
 	static struct built_string command;
 
+	/* icons */
+    media.icons.home = icon_load("icon/home.png");
+    media.icons.directory = icon_load("icon/directory.png");
+    media.icons.computer = icon_load("icon/computer.png");
+    media.icons.desktop = icon_load("icon/desktop.png");
+    media.icons.default_file = icon_load("icon/default.png");
+    media.icons.text_file = icon_load("icon/text.png");
+    media.icons.music_file = icon_load("icon/music.png");
+    media.icons.font_file =  icon_load("icon/font.png");
+    media.icons.img_file = icon_load("icon/img.png");
+    media.icons.movie_file = icon_load("icon/movie.png");
+    media_init(&media);
+
+    file_browser_init(&browser, &media);
+
 	/*Main GUI loop*/
 	while (!glfwWindowShouldClose(win))
 	{
 		//Input
 		glfwPollEvents();
 		nk_glfw3_new_frame();
+
 
 		//Popups
 		static int show_progress_details = nk_false;
@@ -271,6 +298,14 @@ int main(void)
 			if (output.color_popup)
 				draw_color_popup(ctx, &output);
 
+		//File Browser as Popup
+			if(main_settings.scaleWindowForFileBrowser){
+				int width = 0, height = 0;
+				glfwGetWindowSize(win, &width, &height);
+				glfwSetWindowSizeLimits(win,930, 650, 930, 650 );
+				file_browser_run(&browser, ctx, &main_settings, &output);
+			}
+
 			nk_layout_row_end(ctx);
 			nk_menubar_end(ctx);
 			nk_layout_space_begin(ctx, NK_STATIC, 15, 1);
@@ -327,7 +362,7 @@ int main(void)
 						break;
 
 					case OUTPUT:
-						draw_output_tab(ctx, &tab_screen_height, &output);
+						draw_output_tab(ctx, &tab_screen_height, &output, &main_settings);
 						break;
 
 					case DECODERS:
@@ -363,7 +398,7 @@ int main(void)
 
 		//RADIO BUTTON 1 
 			static const float ratio_button[] = { .10f, .90f };
-			static const float check_extension_ratio[] = { .10f, .65f, .15f, .10f };
+			static const float check_extension_ratio[] = { .10f, .53f, .12f, .15f, .10f };
 			enum { PORT, FILES };
 			static int op = FILES;
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
@@ -375,12 +410,17 @@ int main(void)
 
 			//CHECKBOX FOR FILE TYPES
 			static int add_remove_button = nk_false;
-			static int index_decrementer;
-			nk_layout_row(ctx, NK_DYNAMIC, 20, 4, check_extension_ratio);
+			nk_layout_row(ctx, NK_DYNAMIC, 20, 5, check_extension_ratio);
 			nk_spacing(ctx, 1);
 			nk_checkbox_label(ctx, "Check for common video file extensions", &file_extension_check);
 			if (main_settings.filename_count > 0)
 			{
+				if(nk_button_label(ctx, "Add"))
+				{
+					main_settings.is_file_browser_active = nk_true;
+					main_settings.scaleWindowForFileBrowser = nk_true;
+				}
+
 				for (int i = 0; i < main_settings.filename_count; i++)
 				{
 					if (main_settings.is_file_selected[i]) {
@@ -394,7 +434,6 @@ int main(void)
 				{
 
 					if (nk_button_label(ctx, "Remove")) {
-						index_decrementer = 0;
 						for (int i = main_settings.filename_count-1; i != -1; i--)
 							if (main_settings.is_file_selected[i]) {
 								remove_path_entry(&main_settings, i );
@@ -414,6 +453,7 @@ int main(void)
 			}
 
 
+
 			//RECTANGLE-FILES
 			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 180, 3, ratio_rect_files);
@@ -429,8 +469,21 @@ int main(void)
 				}
 
 				else {
-					nk_layout_row_dynamic(ctx, 100, 1);
+					nk_layout_row_dynamic(ctx, 1, 1);
+					nk_spacing(ctx, 1);
+					nk_layout_row_dynamic(ctx, 25, 1);
 					nk_label(ctx, "Drag and Drop files for extraction.", NK_TEXT_CENTERED);
+					nk_layout_row_dynamic(ctx, 25, 1);
+					nk_label(ctx, "OR", NK_TEXT_CENTERED);
+					nk_layout_row_dynamic(ctx, 25, 3);
+					nk_spacing(ctx, 1);
+					if (nk_button_label(ctx, "Browse Files"))
+					{
+						main_settings.is_file_browser_active = nk_true;
+						main_settings.scaleWindowForFileBrowser = nk_true;
+					}
+					nk_spacing(ctx, 1);
+
 				}
 				nk_group_end(ctx);
 
@@ -493,6 +546,8 @@ int main(void)
 			nk_spacing(ctx, 1);
 			nk_progress(ctx, &main_settings.progress_cursor, 101, nk_true);
 
+
+
 			//Extract Button
 			nk_spacing(ctx, 1);
 			if (nk_button_label(ctx, "Extract"))
@@ -501,6 +556,7 @@ int main(void)
 				setup_and_create_thread(&main_settings, &command);
 				
 			}
+
 
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
@@ -526,57 +582,60 @@ int main(void)
 		}
 		nk_end(ctx);
 
-		glfwGetWindowSize(win, &screenWidth, &screenHeight);
+		if(!main_settings.scaleWindowForFileBrowser)
+		{
+			glfwGetWindowSize(win, &screenWidth, &screenHeight);
 
-		if (show_activity_check && show_preview_check && show_terminal_check)
-		{
-			if (screenWidth != 930 || screenHeight != 650)
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
-			activity(ctx, 530, 0, 400, 550);
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-			preview(ctx, 530, 550, 400, 100);
+			if (show_activity_check && show_preview_check && show_terminal_check)
+			{
+				if (screenWidth != 930 || screenHeight != 650)
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				activity(ctx, 530, 0, 400, 550);
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
+				preview(ctx, 530, 550, 400, 100);
+			}
+			if (show_activity_check && show_preview_check && !show_terminal_check )
+			{
+				if (screenWidth != 930 || screenHeight != 650)
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				activity(ctx, 530, 0, 400, 650);
+				preview(ctx, 0, 550, 530, 100);
+			}
+			if (show_activity_check && !show_preview_check && show_terminal_check )
+			{
+				if (screenWidth != 930 || screenHeight != 650)
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				activity(ctx, 530, 0, 400, 650);
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
+			}
+			if (show_terminal_check && show_preview_check && !show_activity_check )
+			{
+				if (screenWidth != 930 || screenHeight != 650)
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
+				preview(ctx, 530, 0, 400, 650);
+			}
+			if (show_activity_check && !show_preview_check && !show_terminal_check )
+			{
+				if (screenWidth != 930 || screenHeight == 650)
+					glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
+				activity(ctx, 530, 0, 400, 550);
+			}
+			if (show_terminal_check && !show_activity_check && !show_preview_check )
+			{
+				if (screenHeight != 650 || screenWidth == 930)
+					glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
+			}
+			if (show_preview_check && !show_terminal_check && !show_activity_check )
+			{
+				if (screenHeight != 650 || screenWidth == 930)
+					glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+				preview(ctx, 0, 550, 530, 100);
+			}
+			if (!show_preview_check && !show_terminal_check && !show_activity_check )
+				glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
 		}
-		if (show_activity_check && show_preview_check && !show_terminal_check)
-		{
-			if (screenWidth != 930 || screenHeight != 650)
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
-			activity(ctx, 530, 0, 400, 650);
-			preview(ctx, 0, 550, 530, 100);
-		}
-		if (show_activity_check && !show_preview_check && show_terminal_check)
-		{
-			if (screenWidth != 930 || screenHeight != 650)
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
-			activity(ctx, 530, 0, 400, 650);
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-		}
-		if (show_terminal_check && show_preview_check && !show_activity_check)
-		{
-			if (screenWidth != 930 || screenHeight != 650)
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-			preview(ctx, 530, 0, 400, 650);
-		}
-		if (show_activity_check && !show_preview_check && !show_terminal_check)
-		{
-			if (screenWidth != 930 || screenHeight == 650)
-				glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
-			activity(ctx, 530, 0, 400, 550);
-		}
-		if (show_terminal_check && !show_activity_check && !show_preview_check)
-		{
-			if (screenHeight != 650 || screenWidth == 930)
-				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-		}
-		if (show_preview_check && !show_terminal_check && !show_activity_check)
-		{
-			if (screenHeight != 650 || screenWidth == 930)
-				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
-			preview(ctx, 0, 550, 530, 100);
-		}
-		if (!show_preview_check && !show_terminal_check && !show_activity_check)
-			glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
 
 
 		glViewport(0, 0, screenWidth, screenHeight);
@@ -588,6 +647,19 @@ int main(void)
 		nk_glfw3_render(NK_ANTI_ALIASING_ON);
 		glfwSwapBuffers(win);
 	}
+
+	glDeleteTextures(1,(const GLuint*)&media.icons.home.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.directory.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.computer.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.desktop.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.default_file.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.text_file.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.music_file.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.font_file.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.img_file.handle.id);
+    glDeleteTextures(1,(const GLuint*)&media.icons.movie_file.handle.id);
+
+	file_browser_free(&browser);
 
 	nk_glfw3_shutdown();
 	glfwTerminate();
@@ -605,6 +677,8 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->port_type[0] = "UDP";
 	main_settings->port_type[1] = "TCP";
 	main_settings->port_select = 0;
+	main_settings->is_file_browser_active = nk_false;
+	main_settings->scaleWindowForFileBrowser = nk_false;
 }
 
 char* truncate_path_string(char *filePath)
@@ -690,4 +764,25 @@ void remove_path_entry(struct main_tab *main_settings, int indexToRemove)
 		main_settings->filename_count--;
 	
 
+}
+
+struct nk_image
+icon_load(const char *filename)
+{
+    int x,y,n;
+    GLuint tex;
+    unsigned char *data = stbi_load(filename, &x, &y, &n, 0);
+    if (!data) die("[SDL]: failed to load image: %s", filename);
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(data);
+    return nk_image_id((int)tex);
 }

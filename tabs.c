@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "tabs.h"
 #include "popups.h"
+#include "file_browser.h"
 
 /*Initialise data of corresponding tabs*/
 void setup_output_tab(struct output_tab *output)
@@ -28,6 +29,7 @@ void setup_output_tab(struct output_tab *output)
 	output->is_delay = nk_false;
 	output->type_select = 0;
 	output->is_filename = nk_false;
+	output->is_output_browser_active = nk_false;
 	output->is_export_xds = nk_false;
 	//Encoding
 	output->encoding = UTF;
@@ -36,7 +38,7 @@ void setup_output_tab(struct output_tab *output)
 	//Capitalization
 	output->is_cap_standard = nk_false;
 	output->is_cap_file = nk_false;
-
+	output->is_cap_browser_active = nk_false;
 	//LineEndings
 	output->line_ending = 0;
 
@@ -290,7 +292,7 @@ void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height)
 	nk_label(ctx, "Advanced input -2", NK_TEXT_LEFT);
 }
 
-void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output)
+void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output, struct main_tab *main_settings)
 {
 	const float roll_limit_ratio[] = { 0.55f, 0.45f };
 	nk_flags active;
@@ -322,7 +324,8 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 		nk_edit_string(ctx, NK_EDIT_SIMPLE, output->filename, &output->filename_len, 255, nk_filter_ascii);
 		if (nk_button_label(ctx, "Browse"))
 		{
-			//File browser code;
+			main_settings->scaleWindowForFileBrowser = nk_true;
+			output->is_output_browser_active = nk_true;
 		}
 
 		//Subtitle Delay
@@ -378,7 +381,8 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 		nk_edit_string(ctx, NK_EDIT_SIMPLE, output->cap_dictionary, &output->cap_dictionary_len, 255, nk_filter_ascii);
 		if (nk_button_label(ctx, "Browse"))
 		{
-			//File browser code;
+			main_settings->scaleWindowForFileBrowser = nk_true;
+			output->is_cap_browser_active = nk_true;
 		}
 
 		nk_group_end(ctx);

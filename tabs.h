@@ -1,6 +1,7 @@
 #ifndef TABS_H
 #define TABS_H
 
+#include "ccextractorGUI.h"
 /*Global variable for output tab*/
 int show_color_from_picker;
 
@@ -14,6 +15,7 @@ struct output_tab
 	int is_filename;
 	char filename[260];
 	int filename_len;
+	int is_output_browser_active;
 	int is_delay;
 	char delay_sec_buffer[4];
 	int is_export_xds;
@@ -21,6 +23,7 @@ struct output_tab
 	enum { LATIN, UNIC, UTF } encoding;
 	int is_bom;
 	//Capitalization
+	int is_cap_browser_active;
 	int is_cap_standard;
 	int is_cap_file;
 	char cap_dictionary[260];
@@ -86,7 +89,7 @@ void setup_input_tab(struct input_tab *input);
 
 void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input);
 void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height);
-void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output);
+void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output, struct main_tab *main_settings);
 void draw_decoders_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_credits_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height);
