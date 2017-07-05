@@ -83,9 +83,24 @@ struct input_tab {
 	enum { AUTO, GOP, PTS } clock_input;
 };
 
+struct burned_subs_tab{
+	int is_burned_subs;
+	enum {PRESET, CUSTOM} color_type;
+	char** subs_color;
+	int subs_color_select;
+	char custom_hue[4];
+	int custom_hue_len;
+	enum {FRAME, WORD, LETTER} ocr_mode;
+	char min_duration[4];
+	int min_duration_len;
+	int luminance_threshold;
+	int confidence_threshold;
+};
+
 /*Tab Functions*/
 void setup_output_tab(struct output_tab *output);
 void setup_input_tab(struct input_tab *input);
+void setup_burned_subs_tab(struct burned_subs_tab *burned_subs);
 
 void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input);
 void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height);
@@ -94,6 +109,6 @@ void draw_decoders_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_credits_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height);
-void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height);
+void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct burned_subs_tab *burned_subs);
 
 #endif //!TABS_H

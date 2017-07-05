@@ -214,6 +214,8 @@ int main(void)
 	setup_output_tab(&output);
 	static struct input_tab input;
 	setup_input_tab(&input);
+	static struct burned_subs_tab burned_subs;
+	setup_burned_subs_tab(&burned_subs);
 	static struct built_string command;
 
 	/* icons */
@@ -382,7 +384,7 @@ int main(void)
 						break;
 
 					case BURNEDSUBS:
-						draw_burned_subs_tab(ctx, &tab_screen_height);
+						draw_burned_subs_tab(ctx, &tab_screen_height, &burned_subs);
 						break;
 					}
 					nk_group_end(ctx);

@@ -97,6 +97,25 @@ void setup_input_tab(struct input_tab *input)
 	input->clock_input = AUTO;
 }
 
+void setup_burned_subs_tab(struct burned_subs_tab *burned_subs)
+{
+	burned_subs->is_burned_subs = nk_false;
+	burned_subs->subs_color = (char**)malloc(7 * sizeof(char *));
+	burned_subs->subs_color[0] = "white";
+	burned_subs->subs_color[1] = "yellow";
+	burned_subs->subs_color[2] = "green";
+	burned_subs->subs_color[3] = "cyan";
+	burned_subs->subs_color[4] = "blue";
+	burned_subs->subs_color[5] = "magenta";
+	burned_subs->subs_color[6] = "red";
+	burned_subs->custom_hue_len = 0;
+	burned_subs->ocr_mode = FRAME;
+	strcpy(burned_subs->min_duration, "0.5");
+	burned_subs->min_duration_len = strlen(burned_subs->min_duration);
+	burned_subs->luminance_threshold = 95;
+	burned_subs->confidence_threshold = 0;
+}
+
 
 /*Tab specific functions*/
 void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input)
@@ -515,9 +534,103 @@ void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height)
 	nk_label(ctx, "HD Home RUn", NK_TEXT_LEFT);
 }
 
-void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height)
+void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct burned_subs_tab *burned_subs)
 {
 	*tab_screen_height = 472;
+	const float color_mode_ratio[] = { 0.65f, 0.35f, 0.05f };
+	const float preset_ratio[] = { 0.4f, 0.5f };
+	const float custom_ratio[] = { 0.4f, 0.5f};
+	const float delay_ratio[] = { 0.4f, 0.2f, 0.2f };
+	const float threshold_ratio[] = { 0.9f, 0.1f };
+	static char buffer[5];
+
 	nk_layout_row_dynamic(ctx, 30, 1);
-	nk_label(ctx, "Burned Subtitles", NK_TEXT_LEFT);
+	nk_checkbox_label(ctx, "Enable Burned-in Subtitle Extraction", &burned_subs->is_burned_subs);
+	nk_layout_row(ctx, NK_DYNAMIC, 140, 2, color_mode_ratio);
+	if(nk_group_begin(ctx, "Subtitle Color", NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
+	{
+		enum {PRESET, CUSTOM};
+		static int option = PRESET;
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, preset_ratio);
+		if(nk_option_label(ctx, "Preset color:", option == PRESET)){
+			option = PRESET;
+			burned_subs->color_type = PRESET;
+		}
+		burned_subs->subs_color_select = nk_combo(ctx, burned_subs->subs_color, 7, burned_subs->subs_color_select, 25, nk_vec2(100, 100));
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, custom_ratio);
+		if(nk_option_label(ctx, "Custom Hue:", option == CUSTOM)){
+			option = CUSTOM;
+			burned_subs->color_type = CUSTOM;
+		}
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, burned_subs->custom_hue, &burned_subs->custom_hue_len, 4, nk_filter_float);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_label_wrap(ctx, "Custom Hue can be between 1 and 360");
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_label_wrap(ctx, "Refer to HSV color chart.");
+
+		nk_group_end(ctx);
+	}
+
+	if(nk_group_begin(ctx, "OCR mode", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER))
+	{
+		enum{ FRAME, WORD, LETTER };
+		static int option = FRAME;
+		nk_layout_row_dynamic(ctx, 25, 1);
+		if(nk_option_label(ctx, "Frame - wise", option == FRAME)){
+			option = FRAME;
+			burned_subs->ocr_mode = FRAME;
+		}
+		nk_layout_row_dynamic(ctx, 25, 1);
+		if(nk_option_label(ctx, "Word - wise", option == WORD)){
+			option = WORD;
+			burned_subs->ocr_mode = WORD;
+		}
+		nk_layout_row_dynamic(ctx, 25, 1);
+		if(nk_option_label(ctx, "Letter - wise", option == LETTER)){
+			option = LETTER;
+			burned_subs->ocr_mode = LETTER;
+		}
+
+		nk_group_end(ctx);
+	}
+	nk_layout_row_dynamic(ctx, 120, 1);
+	if(nk_group_begin(ctx, "Minimum Subtitle Duration", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER))
+	{
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 3, delay_ratio);
+		nk_label(ctx, "Set the minimum subtitle duration to:", NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, burned_subs->min_duration, &burned_subs->min_duration_len, 4, nk_filter_float);
+		nk_label(ctx, "seconds", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_label(ctx, "Lower values give better results but take more time.", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_label(ctx, "0.5 is the recommended value.", NK_TEXT_LEFT);
+		nk_group_end(ctx);
+	}
+
+	if(!burned_subs->subs_color_select)
+	{
+		nk_layout_row_dynamic(ctx, 70, 1);
+		if(nk_group_begin(ctx, "Luminance Threshold", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
+		{
+			nk_layout_row(ctx, NK_DYNAMIC, 25, 2, threshold_ratio);
+			nk_slider_int(ctx, 0, &burned_subs->luminance_threshold, 100, 1);
+			sprintf(buffer, "%d", burned_subs->luminance_threshold);
+			nk_label(ctx, buffer, NK_TEXT_LEFT);
+
+			nk_group_end(ctx);
+		}
+	}
+
+	nk_layout_row_dynamic(ctx, 70, 1);
+	if(nk_group_begin(ctx, "Confidence Threshold", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
+	{
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, threshold_ratio);
+		nk_slider_int(ctx, 0, &burned_subs->confidence_threshold, 100, 1);
+		sprintf(buffer, "%d", burned_subs->confidence_threshold);
+		nk_label(ctx, buffer, NK_TEXT_LEFT);
+
+		nk_group_end(ctx);
+	}
+
 }
