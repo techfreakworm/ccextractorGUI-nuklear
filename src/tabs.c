@@ -114,6 +114,7 @@ void setup_burned_subs_tab(struct burned_subs_tab *burned_subs)
 	burned_subs->min_duration_len = strlen(burned_subs->min_duration);
 	burned_subs->luminance_threshold = 95;
 	burned_subs->confidence_threshold = 0;
+	burned_subs->is_italic = nk_false;
 }
 
 
@@ -197,7 +198,6 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	//Elementary Stream Group
 	if (nk_group_begin(ctx, "Elementary Stream", NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE | NK_WINDOW_BORDER))
 	{
-		enum { AUTO_DETECT, STREAM_TYPE, STREAM_PID };
 		static int option = AUTO_DETECT;
 		nk_layout_row_dynamic(ctx, 20, 1);
 		if (nk_option_label(ctx, "Auto", option == AUTO_DETECT)) {
@@ -227,8 +227,6 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	//Teletext Group
 	if (nk_group_begin(ctx, "Teletext", NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE | NK_WINDOW_BORDER))
 	{
-		
-		enum { AUTO_DECODE, FORCE, DISABLE };
 		static int option = AUTO_DECODE;
 		nk_layout_row_dynamic(ctx, 20, 1);
 		if (nk_option_label(ctx, "Auto", option == AUTO_DECODE)) {
@@ -259,7 +257,6 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	if (nk_group_begin(ctx, "'Screenfuls' limit", NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR))
 	{
 		static int screenful_limits;
-		enum { NO_LIMIT, LIMITED };
 		static int option = NO_LIMIT;
 		
 		nk_layout_row_dynamic(ctx, 20, 1);
@@ -284,7 +281,6 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	//Clock group
 	if (nk_group_begin(ctx, "Clock", NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR))
 	{
-		enum {AUTO, GOP, PTS};
 		static int option = AUTO;
 		nk_layout_row_dynamic(ctx, 20, 3);
 		if (nk_option_label(ctx, "Auto", option == AUTO))
@@ -363,7 +359,6 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 	//Encoding Group
 	if (nk_group_begin(ctx, "Encoding", NK_WINDOW_TITLE |NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
 	{
-		enum {LATIN, UNIC, UTF};
 		static int option = UTF;
 		nk_layout_row_dynamic(ctx, 20, 1);
 		if (nk_option_label(ctx, "Latin", option == LATIN)) {
@@ -410,7 +405,6 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 	//Line Endings
 	if (nk_group_begin(ctx, "Line Endings:", NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR |NK_WINDOW_BORDER))
 	{
-		enum {CRLF, LF};
 		static int option = CRLF;
 		nk_layout_row_dynamic(ctx, 20, 1);
 		if (nk_option_label(ctx, "CRLF (Windows)", option == CRLF)) {
@@ -430,7 +424,6 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 	//Colors and Styles Group
 	if (nk_group_begin(ctx, "Colors and Styles", NK_WINDOW_TITLE | NK_WINDOW_BORDER))
 	{
-		enum { NO_COLOR, DEFAULT_COLOR};
 		static int option = NO_COLOR;
 
 		nk_layout_row_dynamic(ctx, 20, 1);
@@ -478,7 +471,6 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 	//Roll-up Captions Group
 	if (nk_group_begin(ctx, "Roll-up Captions", NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
 	{
-		enum { ONETIME, REALTIME };
 		static int option = ONETIME;
 		
 		nk_layout_row_dynamic(ctx, 25, 1);
@@ -545,11 +537,15 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 	static char buffer[5];
 
 	nk_layout_row_dynamic(ctx, 30, 1);
+#if ENABLE_OCR
 	nk_checkbox_label(ctx, "Enable Burned-in Subtitle Extraction", &burned_subs->is_burned_subs);
+#else
+	nk_label_colored(ctx, "Required Library not found. Cannot perform Burned subtitle extraction.", NK_TEXT_LEFT, nk_rgb(255, 56, 38));
+#endif
+
 	nk_layout_row(ctx, NK_DYNAMIC, 140, 2, color_mode_ratio);
 	if(nk_group_begin(ctx, "Subtitle Color", NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
 	{
-		enum {PRESET, CUSTOM};
 		static int option = PRESET;
 		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, preset_ratio);
 		if(nk_option_label(ctx, "Preset color:", option == PRESET)){
@@ -563,7 +559,7 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 			option = CUSTOM;
 			burned_subs->color_type = CUSTOM;
 		}
-		nk_edit_string(ctx, NK_EDIT_SIMPLE, burned_subs->custom_hue, &burned_subs->custom_hue_len, 4, nk_filter_float);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, burned_subs->custom_hue, &burned_subs->custom_hue_len, 4, nk_filter_decimal);
 		nk_layout_row_dynamic(ctx, 20, 1);
 		nk_label_wrap(ctx, "Custom Hue can be between 1 and 360");
 		nk_layout_row_dynamic(ctx, 20, 1);
@@ -574,7 +570,6 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 
 	if(nk_group_begin(ctx, "OCR mode", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER))
 	{
-		enum{ FRAME, WORD, LETTER };
 		static int option = FRAME;
 		nk_layout_row_dynamic(ctx, 25, 1);
 		if(nk_option_label(ctx, "Frame - wise", option == FRAME)){
@@ -592,6 +587,11 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 			burned_subs->ocr_mode = LETTER;
 		}
 
+		if(burned_subs->is_italic)
+		{
+			option = WORD;
+			burned_subs->ocr_mode = WORD;
+		}
 		nk_group_end(ctx);
 	}
 	nk_layout_row_dynamic(ctx, 120, 1);
@@ -608,12 +608,12 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 		nk_group_end(ctx);
 	}
 
-	if(!burned_subs->subs_color_select)
+	if(!burned_subs->subs_color_select && burned_subs->color_type == PRESET)
 	{
-		nk_layout_row_dynamic(ctx, 70, 1);
+		nk_layout_row_dynamic(ctx, 60, 1);
 		if(nk_group_begin(ctx, "Luminance Threshold", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
 		{
-			nk_layout_row(ctx, NK_DYNAMIC, 25, 2, threshold_ratio);
+			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, threshold_ratio);
 			nk_slider_int(ctx, 0, &burned_subs->luminance_threshold, 100, 1);
 			sprintf(buffer, "%d", burned_subs->luminance_threshold);
 			nk_label(ctx, buffer, NK_TEXT_LEFT);
@@ -622,15 +622,18 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 		}
 	}
 
-	nk_layout_row_dynamic(ctx, 70, 1);
+	nk_layout_row_dynamic(ctx, 60, 1);
 	if(nk_group_begin(ctx, "Confidence Threshold", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER))
 	{
-		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, threshold_ratio);
+		nk_layout_row(ctx, NK_DYNAMIC, 20, 2, threshold_ratio);
 		nk_slider_int(ctx, 0, &burned_subs->confidence_threshold, 100, 1);
 		sprintf(buffer, "%d", burned_subs->confidence_threshold);
 		nk_label(ctx, buffer, NK_TEXT_LEFT);
 
 		nk_group_end(ctx);
 	}
+
+	nk_layout_row_dynamic(ctx, 30, 1);
+	nk_checkbox_label(ctx, "Enable italics detection.", &burned_subs->is_italic);
 
 }

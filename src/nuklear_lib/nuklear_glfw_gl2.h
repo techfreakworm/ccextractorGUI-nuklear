@@ -49,6 +49,8 @@ struct nk_glfw_device {
     struct nk_buffer cmds;
     struct nk_draw_null_texture null;
     GLuint font_tex;
+    GLint uniform_tex;
+    GLint uniform_proj;
 };
 
 struct nk_glfw_vertex {

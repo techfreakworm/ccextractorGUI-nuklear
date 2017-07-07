@@ -9,7 +9,7 @@
 #include "tabs.h"
 #include "command_builder.h"
 
-void command_builder(struct built_string *command, struct main_tab *main_settings, struct network_popup *network_settings,struct input_tab *input, struct output_tab *output)
+void command_builder(struct built_string *command, struct main_tab *main_settings, struct network_popup *network_settings,struct input_tab *input, struct output_tab *output, struct burned_subs_tab *burned_subs)
 {
 	static char buffer[1000];	
 	strcpy(buffer, "./ccextractor --gui_mode_reports -autoprogram");
@@ -182,6 +182,36 @@ void command_builder(struct built_string *command, struct main_tab *main_setting
 			strcat(buffer, " --nogoptime");
 			break;
 		}
+
+
+	}
+
+	if(burned_subs->is_burned_subs)
+	{
+		strcat(buffer, " -hardsubx -ocr_mode");
+		switch(burned_subs->ocr_mode)
+		{
+		case FRAME:
+			strcat(buffer, " frame");
+			break;
+		case WORD:
+			strcat(buffer, " word");
+			break;
+		case LETTER:
+			strcat(buffer, " letter");
+			break;
+		}
+
+		strcat(buffer, " -min_sub_duration ");
+		strcat(buffer, burned_subs->min_duration);
+
+		if(!burned_subs->subs_color_select && burned_subs->color_type == PRESET)
+			sprintf(buffer, "%s -whiteness_thresh %d", buffer, burned_subs->luminance_threshold);
+
+		sprintf(buffer, "%s -conf_thresh %d", buffer, burned_subs->confidence_threshold);
+
+		if(burned_subs->is_italic)
+			strcat(buffer, " -detect_italics");
 	}
 
 	//Output

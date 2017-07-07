@@ -95,6 +95,7 @@ struct burned_subs_tab{
 	int min_duration_len;
 	int luminance_threshold;
 	int confidence_threshold;
+	int is_italic;
 };
 
 /*Tab Functions*/

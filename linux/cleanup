@@ -1,0 +1,5 @@
+#!/bin/bash
+make distclean
+rm -rf autom4te.cache
+rm -rf build-conf
+rm aclocal.m4 configure Makefile.in
