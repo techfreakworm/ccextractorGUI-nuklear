@@ -42,7 +42,7 @@
 #include "tabs.h"
 #include "activity.c"
 #include "terminal.c"
-#include "preview.c"
+#include "preview.h"
 #include "popups.h"
 #include "command_builder.h"
 #include "ccx_cli_thread.h"
@@ -214,6 +214,10 @@ int main(void)
 	setup_output_tab(&output);
 	static struct input_tab input;
 	setup_input_tab(&input);
+	static struct advanced_input_tab advanced_input;
+	setup_advanced_input_tab(&advanced_input);
+	static struct debug_tab debug;
+	setup_debug_tab(&debug);
 	static struct burned_subs_tab burned_subs;
 	setup_burned_subs_tab(&burned_subs);
 	static struct built_string command;
@@ -305,7 +309,7 @@ int main(void)
 				int width = 0, height = 0;
 				glfwGetWindowSize(win, &width, &height);
 				glfwSetWindowSizeLimits(win,930, 650, 930, 650 );
-				file_browser_run(&browser, ctx, &main_settings, &output);
+				file_browser_run(&browser, ctx, &main_settings, &output, &debug);
 			}
 
 			nk_layout_row_end(ctx);
@@ -360,7 +364,7 @@ int main(void)
 						break;
 
 					case ADV_INPUT:
-						draw_advanced_input_tab(ctx, &tab_screen_height);
+						draw_advanced_input_tab(ctx, &tab_screen_height, &advanced_input);
 						break;
 
 					case OUTPUT:
@@ -376,7 +380,7 @@ int main(void)
 						break;
 
 					case DEBUG:
-						draw_debug_tab(ctx, &tab_screen_height);
+						draw_debug_tab(ctx, &tab_screen_height, &main_settings, &output, &debug);
 						break;
 
 					case HDHOMERUN:
@@ -577,7 +581,7 @@ int main(void)
 				draw_progress_details_popup(ctx, &show_progress_details);
 
 			//build command string
-			command_builder(&command, &main_settings, &network_settings, &input, &output, &burned_subs);
+			command_builder(&command, &main_settings, &network_settings, &input, &advanced_input, &output, &debug, &burned_subs);
 
 			
 
@@ -594,14 +598,14 @@ int main(void)
 					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 				activity(ctx, 530, 0, 400, 550);
 				terminal(ctx, 0, 550, 530, 100, &command.term_string);
-				preview(ctx, 530, 550, 400, 100);
+				preview(ctx, 530, 550, 400, 100, &main_settings);
 			}
 			if (show_activity_check && show_preview_check && !show_terminal_check )
 			{
 				if (screenWidth != 930 || screenHeight != 650)
 					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 				activity(ctx, 530, 0, 400, 650);
-				preview(ctx, 0, 550, 530, 100);
+				preview(ctx, 0, 550, 530, 100, &main_settings);
 			}
 			if (show_activity_check && !show_preview_check && show_terminal_check )
 			{
@@ -615,7 +619,7 @@ int main(void)
 				if (screenWidth != 930 || screenHeight != 650)
 					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 				terminal(ctx, 0, 550, 530, 100, &command.term_string);
-				preview(ctx, 530, 0, 400, 650);
+				preview(ctx, 530, 0, 400, 650, &main_settings);
 			}
 			if (show_activity_check && !show_preview_check && !show_terminal_check )
 			{
@@ -633,7 +637,7 @@ int main(void)
 			{
 				if (screenHeight != 650 || screenWidth == 930)
 					glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
-				preview(ctx, 0, 550, 530, 100);
+				preview(ctx, 0, 550, 530, 100, &main_settings);
 			}
 			if (!show_preview_check && !show_terminal_check && !show_activity_check )
 				glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
@@ -681,6 +685,8 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->port_select = 0;
 	main_settings->is_file_browser_active = nk_false;
 	main_settings->scaleWindowForFileBrowser = nk_false;
+	main_settings->preview_string = (char*)malloc(1000*sizeof(char));
+	main_settings->preview_string_len = 0;
 }
 
 char* truncate_path_string(char *filePath)

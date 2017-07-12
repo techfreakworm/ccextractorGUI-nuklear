@@ -28,7 +28,7 @@ ccextractorgui_CFLAGS = -std=gnu99 -s
 ccextractorgui_LDADD = -lglfw3 -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lGLEW -lGL -lGLU -lm -ldl -lpthread
 
 if SYS_IS_LINUX
-ccextractorgui_CFLAGS += -O3
+ccextractorgui_CFLAGS += -O3 -DUNIX
 endif
 
 if HARDSUBX_IS_ENABLED

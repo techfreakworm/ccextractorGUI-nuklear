@@ -9,10 +9,16 @@
 #include "tabs.h"
 #include "command_builder.h"
 
-void command_builder(struct built_string *command, struct main_tab *main_settings, struct network_popup *network_settings,struct input_tab *input, struct output_tab *output, struct burned_subs_tab *burned_subs)
+void command_builder(struct built_string *command,
+		struct main_tab *main_settings,
+		struct network_popup *network_settings,struct input_tab *input,
+		struct advanced_input_tab *advanced_input,
+		struct output_tab *output,
+		struct debug_tab *debug,
+		struct burned_subs_tab *burned_subs)
 {
 	static char buffer[1000];	
-	strcpy(buffer, "./ccextractor --gui_mode_reports -autoprogram");
+	strcpy(buffer, "./ccextractor --gui_mode_reports");
 
 	/*INPUT COMMANDS*/
 	if (main_settings->port_or_files == FILES)
@@ -89,6 +95,7 @@ void command_builder(struct built_string *command, struct main_tab *main_setting
 
 	}
 
+	/*Main tab and network settings*/
 	if (main_settings->port_or_files == PORT)
 	{
 		switch (main_settings->port_select)
@@ -182,10 +189,90 @@ void command_builder(struct built_string *command, struct main_tab *main_setting
 			strcat(buffer, " --nogoptime");
 			break;
 		}
-
-
 	}
 
+	/*ADVANCED INPUT SETTINGS*/
+	if(advanced_input->is_multiple_program)
+	{
+		switch(advanced_input->multiple_program)
+		{
+		case FIRST_PROG:
+			strcat(buffer, " -autoprogram");
+			break;
+		case PROG_NUM:
+			strcat(buffer, " -pn ");
+			strcat(buffer, advanced_input->prog_number);
+			break;
+		}
+	}
+
+	switch(advanced_input->set_myth)
+	{
+	case AUTO_MYTH:
+		break;
+	case FORCE_MYTH:
+		strcat(buffer, " -myth");
+		break;
+	case DISABLE_MYTH:
+		strcat(buffer, " -nomyth");
+		break;
+	}
+
+	if(advanced_input->is_mpeg_90090)
+		strcat(buffer, " -90090");
+	if(advanced_input->is_padding_0000)
+		strcat(buffer, " -fp");
+	if(advanced_input->is_order_ccinfo)
+		strcat(buffer, " -poc");
+	if(advanced_input->is_win_bug)
+		strcat(buffer, " -wtvconvertfix");
+	if(advanced_input->is_hauppage_file)
+		strcat(buffer, " -haup");
+	if(advanced_input->is_process_mp4)
+		strcat(buffer, " -mp4vidtrack");
+	if(advanced_input->is_ignore_broadcast)
+		strcat(buffer, " -noautotimeref");
+
+
+	/*DEBUG TAB*/
+	if(debug->is_elementary_stream)
+	{
+		strcat(buffer, " -cf ");
+		strncat(buffer, debug->elementary_stream, debug->elementary_stream_len);
+	}
+	if(debug->is_dump_packets)
+		strcat(buffer, " -debug");
+	if(debug->is_debug_608)
+		strcat(buffer, " -608");
+	if(debug->is_debug_708)
+		strcat(buffer, " -708");
+	if(debug->is_stamp_output)
+		strcat(buffer, " -goppts");
+	if(debug->is_debug_analysed_vid)
+		strcat(buffer, " -vides");
+	if(debug->is_raw_608_708)
+		strcat(buffer, " -cbraw");
+	if(debug->is_debug_parsed)
+		strcat(buffer, " -parsedebug");
+	if(!strcmp(output->type[output->type_select], "bin"))
+	{
+		if(debug->is_disable_sync)
+			strcat(buffer, " -nosync");
+		if(debug->is_no_padding)
+			strcat(buffer, " -fullbin");
+	}
+	if(debug->is_debug_xds)
+		strcat(buffer, " -xdsdebug");
+	if(debug->is_output_pat)
+		strcat(buffer, " -parsePAT");
+	if(debug->is_output_pmt)
+		strcat(buffer, " -parsePMT");
+	if(debug->is_scan_ccdata)
+		strcat(buffer, " -investigate_packets");
+	if(debug->is_output_levenshtein)
+		strcat(buffer, " -deblev");
+
+	/*HARD_BURNED SUBS SETTINGS*/
 	if(burned_subs->is_burned_subs)
 	{
 		strcat(buffer, " -hardsubx -ocr_mode");

@@ -271,7 +271,11 @@ file_browser_free(struct file_browser *browser)
 }
 
 int
-file_browser_run(struct file_browser *browser, struct nk_context *ctx, struct main_tab *main_settings, struct output_tab *output)
+file_browser_run(struct file_browser *browser,
+		struct nk_context *ctx,
+		struct main_tab *main_settings,
+		struct output_tab *output,
+		struct debug_tab *debug)
 {
 	static int isFileAdded = nk_false;
     int ret = 0;
@@ -357,6 +361,14 @@ file_browser_run(struct file_browser *browser, struct nk_context *ctx, struct ma
                             strncpy(browser->file + n, browser->files[fileIndex], MAX_PATH_LEN - n);
                             ret = 1;
 
+                            if(debug->is_debug_browser_active)
+                            {
+                            	debug->elementary_stream_len = strlen(browser->file);
+                            	strcpy(debug->elementary_stream, browser->file);
+                            	isFileAdded = nk_true;
+                            	debug->is_debug_browser_active = nk_false;
+                            	break;
+                            }
                             if(output->is_output_browser_active)
                             {
                             	output->filename_len = strlen(browser->file);

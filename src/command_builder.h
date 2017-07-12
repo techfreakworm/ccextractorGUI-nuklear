@@ -10,6 +10,13 @@ struct built_string
 	char term_string[1000];
 };
 
-void command_builder(struct built_string *command, struct main_tab *main_settings, struct network_popup *network_settings, struct input_tab *input, struct output_tab *output, struct burned_subs_tab *burned_subs);
+void command_builder(struct built_string *command,
+		struct main_tab *main_settings,
+		struct network_popup *network_settings,
+		struct input_tab *input,
+		struct advanced_input_tab *advanced_input,
+		struct output_tab *output,
+		struct debug_tab *debug,
+		struct burned_subs_tab *burned_subs);
 
 #endif //!COMMAND_BUILDER_H

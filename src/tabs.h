@@ -83,6 +83,53 @@ struct input_tab {
 	enum { AUTO, GOP, PTS } clock_input;
 };
 
+
+
+struct advanced_input_tab{
+
+	//Multiple Programs
+	int is_multiple_program;
+	enum { FIRST_PROG, PROG_NUM } multiple_program;
+	char prog_number[6];
+	int prog_number_len;
+
+	//Myth TV
+	enum { AUTO_MYTH, FORCE_MYTH, DISABLE_MYTH } set_myth;
+
+	//Miscellaneous
+	int is_mpeg_90090;
+	int is_padding_0000;
+	int is_order_ccinfo;
+	int is_win_bug;
+	int is_hauppage_file;
+	int is_process_mp4;
+	int is_ignore_broadcast;
+
+};
+
+struct debug_tab{
+	int is_elementary_stream;
+	char elementary_stream[260];
+	int elementary_stream_len;
+	int is_dump_packets;
+	int is_debug_608;
+	int is_debug_708;
+	int is_stamp_output;
+	int is_debug_analysed_vid;
+	int is_raw_608_708;
+	int is_debug_parsed;
+	int is_disable_sync;
+	int is_no_padding;
+	int is_debug_xds;
+	int is_output_pat;
+	int is_output_pmt;
+	int is_scan_ccdata;
+	int is_output_levenshtein;
+	//File browser trigger
+	int is_debug_browser_active;
+};
+
+
 struct burned_subs_tab{
 	int is_burned_subs;
 	enum {PRESET, CUSTOM} color_type;
@@ -97,18 +144,24 @@ struct burned_subs_tab{
 	int confidence_threshold;
 	int is_italic;
 };
-
 /*Tab Functions*/
 void setup_output_tab(struct output_tab *output);
 void setup_input_tab(struct input_tab *input);
+void setup_advanced_input_tab(struct advanced_input_tab *advaned_input);
+void setup_debug_tab(struct debug_tab *debug);
 void setup_burned_subs_tab(struct burned_subs_tab *burned_subs);
 
 void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input);
-void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height);
-void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output, struct main_tab *main_settings);
+void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height,
+		struct advanced_input_tab *advaned_input);
+void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output,
+		struct main_tab *main_settings);
 void draw_decoders_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_credits_tab(struct nk_context *ctx, int *tab_screen_height);
-void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height);
+void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height,
+		struct main_tab *main_settings,
+		struct output_tab *output,
+		struct debug_tab *debug);
 void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height);
 void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct burned_subs_tab *burned_subs);
 

@@ -22,22 +22,32 @@ void* extract_thread(void* extract_args)
 
 void* read_data_from_thread(void* read_args)
 {
-	/*UNIX specific*/
+	static char buffer[500];
+	char t_start[6], t_end[6], subtitle[100], *line_ptr;
+#if UNIX
 	struct timespec time;
 	time.tv_sec = 0;
 	time.tv_nsec = 10000000L;
+#endif
 	int wait = 0;
 	struct args_extract *read_params = (struct args_extract*)read_args;
 	int unknown1 = 0, unknown2 = 0,progress_count = 0;
 	FILE *file;
-	char line[1000];
+	char prev_line[500];
+	char line[500];
+	char sub_line[500];
+	char prog_line[500];
+	static int subs_success, progress_success;
 	file = fopen("gui_report.log", "r");
 
 	while (file == NULL) {
 		printf("Cannot open file! Trying again.\n");
 		file = fopen("gui_report.log", "r");
-		nanosleep(&time, NULL);   //----> UNIX SPECIFIC
-		//_sleep(10);  //----> WINDOWS SPECIFIC
+#if UNIX
+		nanosleep(&time, NULL);
+#else
+		_sleep(10);
+#endif
 		wait++;
 		if (wait >= MAX_WAIT) {
 			printf("POPUP:Make sure the directory isn't write protected!");
@@ -48,13 +58,49 @@ void* read_data_from_thread(void* read_args)
 
 	while( progress_count != PROGRESS_COMPLETE)
 	{
-		fgets(line, sizeof(line), file);
-		sscanf(line, "###PROGRESS#%d#%d#%d", &progress_count, &unknown1, &unknown2);
-		read_params->main_threadsettings->progress_cursor = progress_count;
+		line_ptr = fgets(line, sizeof(line), file);
+		progress_success = sscanf(line, "###PROGRESS#%d#%d#%d", &progress_count, &unknown1, &unknown2);
+		if(progress_success == 3)
+			read_params->main_threadsettings->progress_cursor = progress_count;
+		subs_success = sscanf(line, "###SUBTITLE#%[^#]#%[^#]#%[^\n]", t_start, t_end, subtitle);
+		printf("%d", subs_success);
+		if(subs_success == 3)
+		{
+			sprintf(buffer, "%s-%s: %s\n", t_start, t_end, subtitle);
+			if(read_params->main_threadsettings->preview_string_len == 0)
+				read_params->main_threadsettings->preview_string = strdup(buffer);
+			else
+				strncat(read_params->main_threadsettings->preview_string, buffer, strlen(buffer));
+			read_params->main_threadsettings->preview_string_len += strlen(buffer);
+		}
+//		subs_success = sscanf(line, "###SUBTITLE###%[^\n]s", subtitle);
+//		printf("%d", subs_success);
+//		if(subs_success == 1)
+//		{
+//			printf("%s\n", subtitle);
+//			puts(subtitle);
+//			sprintf(buffer, "%s\n", subtitle);
+//			if(read_params->main_threadsettings->preview_string_len == 0)
+//				read_params->main_threadsettings->preview_string = strdup(buffer);
+//			else
+//				strncat(read_params->main_threadsettings->preview_string, buffer, strlen(buffer));
+//			read_params->main_threadsettings->preview_string_len += strlen(buffer);
+//
+//		}
+
+		//printf(read_params->main_threadsettings->preview_string);
+		//memset(&buffer[0], 0, sizeof(buffer);
+//		sscanf("###SUBTITLE###%[^n]", subtitle);
+//		strcat(read_params->main_threadsettings->preview_string, subtitle);
+//		printf(read_params->main_threadsettings->preview_string);
+
+
 	}
-	printf("profress count:%d\n", progress_count);
+
+	printf("progress count:%d\n", progress_count);
 	fclose(file);
 	printf("File closed\n");
+	puts(read_params->main_threadsettings->preview_string);
 	pthread_exit(0);
 }
 

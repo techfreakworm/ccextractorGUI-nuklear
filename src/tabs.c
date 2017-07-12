@@ -97,6 +97,46 @@ void setup_input_tab(struct input_tab *input)
 	input->clock_input = AUTO;
 }
 
+void setup_advanced_input_tab(struct advanced_input_tab *advanced_input)
+{
+	//Multiple Programs
+	advanced_input->is_multiple_program = nk_true;
+	advanced_input->multiple_program = FIRST_PROG;
+
+	//Myth TV
+	advanced_input->set_myth = AUTO_MYTH;
+
+	//Miscellaneous
+	advanced_input->is_mpeg_90090 = nk_false;
+	advanced_input->is_padding_0000 = nk_false;
+	advanced_input->is_order_ccinfo = nk_false;
+	advanced_input->is_win_bug = nk_false;
+	advanced_input->is_hauppage_file = nk_false;
+	advanced_input->is_process_mp4 = nk_false;
+	advanced_input->is_ignore_broadcast = nk_false;
+}
+
+void setup_debug_tab(struct debug_tab *debug)
+{
+	debug->is_elementary_stream = nk_false;
+	debug->elementary_stream_len = 0;
+	debug->is_dump_packets = nk_false;
+	debug->is_debug_608 = nk_false;
+	debug->is_debug_708 = nk_false;
+	debug->is_stamp_output = nk_false;
+	debug->is_debug_analysed_vid = nk_false;
+	debug->is_raw_608_708 = nk_false;
+	debug->is_debug_parsed = nk_false;
+	debug->is_disable_sync = nk_false;
+	debug->is_no_padding = nk_false;
+	debug->is_debug_xds = nk_false;
+	debug->is_output_pat = nk_false;
+	debug->is_output_pmt = nk_false;
+	debug->is_scan_ccdata = nk_false;
+	debug->is_output_levenshtein = nk_false;
+	debug->is_debug_browser_active = nk_false;
+}
+
 void setup_burned_subs_tab(struct burned_subs_tab *burned_subs)
 {
 	burned_subs->is_burned_subs = nk_false;
@@ -300,11 +340,89 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	}
 }
 
-void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height)
+void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height, struct advanced_input_tab *advanced_input)
 {
 	*tab_screen_height = 472;
-	nk_layout_row_dynamic(ctx, 30, 1);
-	nk_label(ctx, "Advanced input -2", NK_TEXT_LEFT);
+	const float prog_myth_ratio[] = { 0.5f, 0.5f };
+	const float prog_num_ratio[] = { 0.67f, 0.03f, 0.3f };
+
+	nk_layout_row(ctx, NK_DYNAMIC, 125, 2, prog_myth_ratio);
+
+	//Multiple Programs Group
+	if(nk_group_begin(ctx, "Multiple Programs", NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_TITLE))
+	{
+		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_checkbox_label(ctx, "File contains multiple programs", &advanced_input->is_multiple_program);
+
+		static int option = FIRST_PROG;
+		nk_layout_row_dynamic(ctx, 20, 1);
+		if(nk_option_label(ctx, "Process first suitable program", option == FIRST_PROG))
+		{
+			option = FIRST_PROG;
+			advanced_input->multiple_program = FIRST_PROG;
+		}
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 3, prog_num_ratio);
+		if(nk_option_label(ctx, "Process program with #", option == PROG_NUM))
+		{
+			option = PROG_NUM;
+			advanced_input->multiple_program = PROG_NUM;
+		}
+		nk_spacing(ctx, 1);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, advanced_input->prog_number, &advanced_input->prog_number_len, 6, nk_filter_decimal);
+
+		nk_group_end(ctx);
+	}
+
+	//Myth TV group
+	if(nk_group_begin(ctx, "Myth TV", NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR))
+	{
+		static int option = AUTO_MYTH;
+		nk_layout_row_dynamic(ctx, 20, 1);
+		if(nk_option_label(ctx, "Auto", option == AUTO_MYTH))
+		{
+			option = AUTO_MYTH;
+			advanced_input->set_myth = AUTO_MYTH;
+		}
+
+		nk_layout_row_dynamic(ctx, 20, 1);
+		if(nk_option_label(ctx, "Force usage of Myth TV decoder", option == FORCE_MYTH))
+		{
+			option = FORCE_MYTH;
+			advanced_input->set_myth = FORCE_MYTH;
+		}
+
+		nk_layout_row_dynamic(ctx, 20, 1);
+		if(nk_option_label(ctx, "Disable Myth TV decoder", option == DISABLE_MYTH))
+		{
+			option = DISABLE_MYTH;
+			advanced_input->set_myth = DISABLE_MYTH;
+		}
+
+		nk_group_end(ctx);
+	}
+
+	//Miscellaneous group
+	nk_layout_row_dynamic(ctx, 210, 1);
+	if(nk_group_begin(ctx, "Miscellaneous", NK_WINDOW_TITLE|NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR))
+	{
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "Use 90090 as MPEG clock frequency instead of 90000 (needed for some DVDs", &advanced_input->is_mpeg_90090);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "Use 0000 as CC padding instead of 8080", &advanced_input->is_padding_0000);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "Use the pic_order_cnt_lsb in AVC/H.264 data streams to order the CC information", &advanced_input->is_order_ccinfo);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "Work around  a bug in Win 7s software when converted from *.wtv to *.dvr-ms", &advanced_input->is_win_bug);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "File was captured from Hauppage card", &advanced_input->is_hauppage_file);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "Force processing video track in MP4(instead of dedicated CC track", &advanced_input->is_process_mp4);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_checkbox_label(ctx, "Ignore broadcast date info (only affects Teletext in timed transcript with -datets)", &advanced_input->is_ignore_broadcast);
+
+
+		nk_group_end(ctx);
+	}
 }
 
 void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output, struct main_tab *main_settings)
@@ -512,11 +630,69 @@ void draw_credits_tab(struct nk_context *ctx, int *tab_screen_height)
 	nk_label(ctx, "Credits", NK_TEXT_LEFT);
 }
 
-void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height)
+void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height,
+		struct main_tab *main_settings,
+		struct output_tab *output,
+		struct debug_tab *debug)
 {
 	*tab_screen_height = 472;
-	nk_layout_row_dynamic(ctx, 30, 1);
-	nk_label(ctx, "Debug", NK_TEXT_LEFT);
+	const float stream_ratio[] = { 0.45f, 0.45f, 0.1f };
+	nk_layout_row_dynamic(ctx, 4, 1);
+	nk_spacing(ctx, 1);
+	nk_layout_row(ctx, NK_DYNAMIC, 25, 3, stream_ratio);
+	nk_checkbox_label(ctx, "Write elementary stream to this file", &debug->is_elementary_stream);
+	nk_edit_string(ctx, NK_EDIT_SIMPLE, debug->elementary_stream, &debug->elementary_stream_len, 260, nk_filter_ascii);
+	if(nk_button_label(ctx, "Browse"))
+	{
+		debug->is_debug_browser_active = nk_true;
+		main_settings->scaleWindowForFileBrowser = nk_true;
+	}
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Dump Intereseting packets, usually those that don't seem to follow specs.", &debug->is_dump_packets);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Print debug traces from EIA-608 decoder.", &debug->is_debug_608);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Print debug traces from EIA-708 decoder.", &debug->is_debug_708);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Enable lots of time stamp output.", &debug->is_stamp_output);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Print debug info about the analysed elementary video stream.", &debug->is_debug_analysed_vid);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Print debug trace with raw 608/708 data with time stamps.", &debug->is_raw_608_708);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Print debug info for parse container files (only for ASF files at the moment).", &debug->is_debug_parsed);
+
+	if(!(strcmp(output->type[output->type_select], "bin")))
+	{
+		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_checkbox_label(ctx, "Disable sync code when there's a timeline gap.", &debug->is_disable_sync);
+
+		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_checkbox_label(ctx, "Don't remove trailing padding blocks.", &debug->is_no_padding);
+
+	}
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Enable XDS debug traces.", &debug->is_debug_xds);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Output Program Association Table (PAT) contents.", &debug->is_output_pat);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Output Program Map Table (PMT) contents.", &debug->is_output_pmt);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "If no suitable packet found in PMT, analyse packet contents and scan for CC data.", &debug->is_scan_ccdata);
+
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_checkbox_label(ctx, "Output Levenshtein debug info(calculated distance, allowed, etc)", &debug->is_output_levenshtein);
 }
 
 void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height)
