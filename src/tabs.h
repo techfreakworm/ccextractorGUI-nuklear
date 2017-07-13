@@ -144,20 +144,65 @@ struct burned_subs_tab{
 	int confidence_threshold;
 	int is_italic;
 };
+
+struct decoders_tab{
+	//608 DECODER
+	int is_field1;
+	int is_field2;
+	enum { CHANNEL_1, CHANNEL_2 } channel;
+
+	//708 DECODER
+	int is_708;
+	char services[15];
+	int services_len;
+
+	//Teletext or DVB
+	enum { TELETEXT, DVB } teletext_dvb;
+
+	//Teletext line Duplication
+	char min_distance[4];
+	int min_distance_len;
+	char max_distance[4];
+	int max_distance_len;
+};
+
+struct credits_tab{
+	//START CREDITS
+	int is_start_text;
+	char start_text[1000];
+	int start_text_len;
+	int is_not_before;
+	int is_not_after;
+	char not_before_time[10];
+	char not_after_time[10];
+	char start_atmost_sec[4];
+	char start_atleast_sec[4];
+
+	//END CREDITS
+	int is_end_text;
+	char end_text[1000];
+	int end_text_len;
+	char end_atmost_sec[4];
+	char end_atleast_sec[4];
+};
+
 /*Tab Functions*/
 void setup_output_tab(struct output_tab *output);
+void setup_decoders_tab(struct decoders_tab *decoders);
+void setup_credits_tab(struct credits_tab *credits);
 void setup_input_tab(struct input_tab *input);
 void setup_advanced_input_tab(struct advanced_input_tab *advaned_input);
 void setup_debug_tab(struct debug_tab *debug);
 void setup_burned_subs_tab(struct burned_subs_tab *burned_subs);
 
-void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input);
+void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input,
+		struct decoders_tab *decoders);
 void draw_advanced_input_tab(struct nk_context *ctx, int *tab_screen_height,
 		struct advanced_input_tab *advaned_input);
 void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct output_tab *output,
 		struct main_tab *main_settings);
-void draw_decoders_tab(struct nk_context *ctx, int *tab_screen_height);
-void draw_credits_tab(struct nk_context *ctx, int *tab_screen_height);
+void draw_decoders_tab(struct nk_context *ctx, int *tab_screen_height, struct decoders_tab *decoders);
+void draw_credits_tab(struct nk_context *ctx, int *tab_screen_height, struct credits_tab *credits);
 void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height,
 		struct main_tab *main_settings,
 		struct output_tab *output,

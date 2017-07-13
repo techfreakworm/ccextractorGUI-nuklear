@@ -16,6 +16,7 @@ void command_builder(struct built_string *command,
 		struct input_tab *input,
 		struct advanced_input_tab *advanced_input,
 		struct output_tab *output,
+		struct decoders_tab *decoders,
 		struct debug_tab *debug,
 		struct burned_subs_tab *burned_subs);
 

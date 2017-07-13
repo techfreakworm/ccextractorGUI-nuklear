@@ -14,6 +14,7 @@ void command_builder(struct built_string *command,
 		struct network_popup *network_settings,struct input_tab *input,
 		struct advanced_input_tab *advanced_input,
 		struct output_tab *output,
+		struct decoders_tab *decoders,
 		struct debug_tab *debug,
 		struct burned_subs_tab *burned_subs)
 {
@@ -59,19 +60,22 @@ void command_builder(struct built_string *command,
 			strncat(buffer, input->mpeg_type, input->mpeg_type_len);
 		}
 
-		switch (input->teletext_decoder) {
-		case AUTO_DECODE:
-			break;
-		case FORCE:
-			strcat(buffer, " -teletext");
-			break;
-		case DISABLE:
-			strcat(buffer, " -noteletext");
-		}
+		if(decoders->teletext_dvb == TELETEXT)
+		{
+			switch (input->teletext_decoder) {
+			case AUTO_DECODE:
+				break;
+			case FORCE:
+				strcat(buffer, " -teletext");
+				break;
+			case DISABLE:
+				strcat(buffer, " -noteletext");
+			}
 
-		if (input->is_process_teletext_page) {
-			strcat(buffer, " -tpage ");
-			strncat(buffer, input->teletext_page_number, input->teletext_page_numer_len);
+			if (input->is_process_teletext_page) {
+				strcat(buffer, " -tpage ");
+				strncat(buffer, input->teletext_page_number, input->teletext_page_numer_len);
+			}
 		}
 
 		switch (input->is_limit) {
@@ -232,6 +236,45 @@ void command_builder(struct built_string *command,
 		strcat(buffer, " -mp4vidtrack");
 	if(advanced_input->is_ignore_broadcast)
 		strcat(buffer, " -noautotimeref");
+
+	/*DECODERS TAB*/
+	if(decoders->is_field2)
+		strcat(buffer, " -12");
+
+	switch(decoders->channel)
+	{
+	case CHANNEL_1:
+		break;
+	case CHANNEL_2:
+		strcat(buffer, " -cc2");
+		break;
+	}
+
+	if(decoders->is_708)
+	{
+		strcat(buffer, " -svc ");
+		strncat(buffer, decoders->services, decoders->services_len);
+	}
+
+	switch(decoders->teletext_dvb)
+	{
+	case TELETEXT:
+		if(strcmp(decoders->min_distance, "2"))
+		{
+			strcat(buffer, " -levdistmincnt ");
+			strncat(buffer, decoders->min_distance, decoders->min_distance_len);
+		}
+		if(strcmp(decoders->max_distance, "10"))
+		{
+			strcat(buffer, " -levdistmaxpct ");
+			strncat(buffer, decoders->max_distance, decoders->max_distance_len);
+		}
+		break;
+
+	case DVB:
+		strcat(buffer, " -codec dvdsub");
+		break;
+	}
 
 
 	/*DEBUG TAB*/

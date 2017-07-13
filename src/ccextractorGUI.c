@@ -212,6 +212,10 @@ int main(void)
 	setup_network_settings(&network_settings);
 	static struct output_tab output;
 	setup_output_tab(&output);
+	static struct decoders_tab decoders;
+	setup_decoders_tab(&decoders);
+	static struct credits_tab credits;
+	setup_credits_tab(&credits);
 	static struct input_tab input;
 	setup_input_tab(&input);
 	static struct advanced_input_tab advanced_input;
@@ -360,7 +364,7 @@ int main(void)
 						break;
 
 					case INPUT:
-						draw_input_tab(ctx, &tab_screen_height, &input);
+						draw_input_tab(ctx, &tab_screen_height, &input, &decoders);
 						break;
 
 					case ADV_INPUT:
@@ -372,11 +376,11 @@ int main(void)
 						break;
 
 					case DECODERS:
-						draw_decoders_tab(ctx, &tab_screen_height);
+						draw_decoders_tab(ctx, &tab_screen_height, &decoders);
 						break;
 
 					case CREDITS:
-						draw_credits_tab(ctx, &tab_screen_height);
+						draw_credits_tab(ctx, &tab_screen_height, &credits);
 						break;
 
 					case DEBUG:
@@ -581,7 +585,7 @@ int main(void)
 				draw_progress_details_popup(ctx, &show_progress_details);
 
 			//build command string
-			command_builder(&command, &main_settings, &network_settings, &input, &advanced_input, &output, &debug, &burned_subs);
+			command_builder(&command, &main_settings, &network_settings, &input, &advanced_input, &output, &decoders, &debug, &burned_subs);
 
 			
 
