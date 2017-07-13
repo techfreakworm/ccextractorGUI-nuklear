@@ -62,17 +62,17 @@ void* read_data_from_thread(void* read_args)
 		progress_success = sscanf(line, "###PROGRESS#%d#%d#%d", &progress_count, &unknown1, &unknown2);
 		if(progress_success == 3)
 			read_params->main_threadsettings->progress_cursor = progress_count;
-		subs_success = sscanf(line, "###SUBTITLE#%[^#]#%[^#]#%[^\n]", t_start, t_end, subtitle);
-		printf("%d", subs_success);
-		if(subs_success == 3)
-		{
-			sprintf(buffer, "%s-%s: %s\n", t_start, t_end, subtitle);
-			if(read_params->main_threadsettings->preview_string_len == 0)
-				read_params->main_threadsettings->preview_string = strdup(buffer);
-			else
-				strncat(read_params->main_threadsettings->preview_string, buffer, strlen(buffer));
-			read_params->main_threadsettings->preview_string_len += strlen(buffer);
-		}
+//		subs_success = sscanf(line, "###SUBTITLE#%[^#]#%[^#]#%[^\n]", t_start, t_end, subtitle);
+//		printf("%d", subs_success);
+//		if(subs_success == 3)
+//		{
+//			sprintf(buffer, "%s-%s: %s\n", t_start, t_end, subtitle);
+//			if(read_params->main_threadsettings->preview_string_len == 0)
+//				read_params->main_threadsettings->preview_string = strdup(buffer);
+//			else
+//				strncat(read_params->main_threadsettings->preview_string, buffer, strlen(buffer));
+//			read_params->main_threadsettings->preview_string_len += strlen(buffer);
+//		}
 //		subs_success = sscanf(line, "###SUBTITLE###%[^\n]s", subtitle);
 //		printf("%d", subs_success);
 //		if(subs_success == 1)

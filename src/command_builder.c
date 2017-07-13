@@ -15,6 +15,7 @@ void command_builder(struct built_string *command,
 		struct advanced_input_tab *advanced_input,
 		struct output_tab *output,
 		struct decoders_tab *decoders,
+		struct credits_tab *credits,
 		struct debug_tab *debug,
 		struct burned_subs_tab *burned_subs)
 {
@@ -276,6 +277,36 @@ void command_builder(struct built_string *command,
 		break;
 	}
 
+	/*CREDITS TAB*/
+	if(credits->is_start_text)
+	{
+		strcat(buffer, " --startcreditstext \"");
+		strncat(buffer, credits->start_text, credits->start_text_len);
+		strcat(buffer,"\" --startcreditsforatleast ");
+		strncat(buffer, credits->start_atleast_sec, credits->start_atleast_sec_len);
+		strcat(buffer, " --startcreditsforatmost ");
+		strncat(buffer, credits->start_atmost_sec, credits->start_atmost_sec_len);
+		if(credits->is_before)
+		{
+			strcat(buffer, " --startcreditsnotbefore ");
+			strcat(buffer, credits->before_time_buffer);
+		}
+		if(credits->is_after)
+		{
+			strcat(buffer, " --startcreditsnotafter ");
+			strcat(buffer, credits->after_time_buffer);
+		}
+	}
+
+	if(credits->is_end_text)
+	{
+		strcat(buffer, " --endcreditstext \"");
+		strncat(buffer, credits->end_text, credits->end_text_len);
+		strcat(buffer, "\" --endcreditsforatleast ");
+		strncat(buffer, credits->end_atleast_sec, credits->end_atleast_sec_len);
+		strcat(buffer, " --endcreditsforatmost ");
+		strncat(buffer, credits->end_atmost_sec, credits->end_atmost_sec_len);
+	}
 
 	/*DEBUG TAB*/
 	if(debug->is_elementary_stream)

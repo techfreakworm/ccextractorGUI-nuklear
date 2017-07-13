@@ -585,7 +585,7 @@ int main(void)
 				draw_progress_details_popup(ctx, &show_progress_details);
 
 			//build command string
-			command_builder(&command, &main_settings, &network_settings, &input, &advanced_input, &output, &decoders, &debug, &burned_subs);
+			command_builder(&command, &main_settings, &network_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &burned_subs);
 
 			
 

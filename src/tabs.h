@@ -171,19 +171,23 @@ struct credits_tab{
 	int is_start_text;
 	char start_text[1000];
 	int start_text_len;
-	int is_not_before;
-	int is_not_after;
-	char not_before_time[10];
-	char not_after_time[10];
+	int is_before;
+	int is_after;
+	char before_time_buffer[10];
+	char after_time_buffer[10];
 	char start_atmost_sec[4];
+	int start_atmost_sec_len;
 	char start_atleast_sec[4];
+	int start_atleast_sec_len;
 
 	//END CREDITS
 	int is_end_text;
 	char end_text[1000];
 	int end_text_len;
 	char end_atmost_sec[4];
+	int end_atmost_sec_len;
 	char end_atleast_sec[4];
+	int end_atleast_sec_len;
 };
 
 /*Tab Functions*/
