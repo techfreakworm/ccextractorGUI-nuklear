@@ -222,6 +222,8 @@ int main(void)
 	setup_advanced_input_tab(&advanced_input);
 	static struct debug_tab debug;
 	setup_debug_tab(&debug);
+	static struct hd_homerun_tab hd_homerun;
+	setup_hd_homerun_tab(&hd_homerun);
 	static struct burned_subs_tab burned_subs;
 	setup_burned_subs_tab(&burned_subs);
 	static struct built_string command;
@@ -313,7 +315,7 @@ int main(void)
 				int width = 0, height = 0;
 				glfwGetWindowSize(win, &width, &height);
 				glfwSetWindowSizeLimits(win,930, 650, 930, 650 );
-				file_browser_run(&browser, ctx, &main_settings, &output, &debug);
+				file_browser_run(&browser, ctx, &main_settings, &output, &debug, &hd_homerun);
 			}
 
 			nk_layout_row_end(ctx);
@@ -388,7 +390,7 @@ int main(void)
 						break;
 
 					case HDHOMERUN:
-						draw_hd_homerun_tab(ctx, &tab_screen_height);
+						draw_hd_homerun_tab(ctx, &tab_screen_height, &hd_homerun, &main_settings);
 						break;
 
 					case BURNEDSUBS:

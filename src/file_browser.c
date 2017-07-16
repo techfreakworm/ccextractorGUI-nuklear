@@ -275,7 +275,8 @@ file_browser_run(struct file_browser *browser,
 		struct nk_context *ctx,
 		struct main_tab *main_settings,
 		struct output_tab *output,
-		struct debug_tab *debug)
+		struct debug_tab *debug,
+		struct hd_homerun_tab *hd_homerun)
 {
 	static int isFileAdded = nk_false;
     int ret = 0;
@@ -361,6 +362,15 @@ file_browser_run(struct file_browser *browser,
                             strncpy(browser->file + n, browser->files[fileIndex], MAX_PATH_LEN - n);
                             ret = 1;
 
+
+                            if(hd_homerun->is_homerun_browser_active)
+                            {
+                            	hd_homerun->location_len = strlen(browser->file);
+                            	strncpy(hd_homerun->location, browser->file, hd_homerun->location_len);
+                            	isFileAdded = nk_true;
+                            	hd_homerun->is_homerun_browser_active = nk_false;
+                            	break;
+                            }
                             if(debug->is_debug_browser_active)
                             {
                             	debug->elementary_stream_len = strlen(browser->file);

@@ -190,6 +190,26 @@ struct credits_tab{
 	int end_atleast_sec_len;
 };
 
+struct hd_homerun_tab{
+	char location[260];
+	int location_len;
+	int device_select[50];
+	int device_num;
+	char **devices;
+	int is_homerun_browser_active;
+	char tuner[2];
+	int tuner_len;
+	char channel[5];
+	int channel_len;
+	char program[10];
+	int program_len;
+	char ipv4_address[16];
+	int ipv4_address_len;
+	char port_number[8];
+	int port_number_len;
+	int selected;
+};
+
 /*Tab Functions*/
 void setup_output_tab(struct output_tab *output);
 void setup_decoders_tab(struct decoders_tab *decoders);
@@ -197,6 +217,7 @@ void setup_credits_tab(struct credits_tab *credits);
 void setup_input_tab(struct input_tab *input);
 void setup_advanced_input_tab(struct advanced_input_tab *advaned_input);
 void setup_debug_tab(struct debug_tab *debug);
+void setup_hd_homerun_tab(struct hd_homerun_tab *hd_homerun);
 void setup_burned_subs_tab(struct burned_subs_tab *burned_subs);
 
 void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input_tab *input,
@@ -211,7 +232,9 @@ void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height,
 		struct main_tab *main_settings,
 		struct output_tab *output,
 		struct debug_tab *debug);
-void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height);
+void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height,
+		struct hd_homerun_tab *hd_homerun,
+		struct main_tab *main_settings);
 void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct burned_subs_tab *burned_subs);
 
 #endif //!TABS_H

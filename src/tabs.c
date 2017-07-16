@@ -7,6 +7,7 @@
 #include "tabs.h"
 #include "popups.h"
 #include "file_browser.h"
+#include "ccx_cli_thread.h"
 
 /*Initialise data of corresponding tabs*/
 void setup_output_tab(struct output_tab *output)
@@ -172,6 +173,17 @@ void setup_credits_tab(struct credits_tab *credits)
 
 }
 
+void setup_hd_homerun_tab(struct hd_homerun_tab *hd_homerun)
+{
+	hd_homerun->is_homerun_browser_active = nk_false;
+	hd_homerun->location_len = 0;
+	hd_homerun->devices = (char**)malloc(3 * sizeof(char *));
+	hd_homerun->device_num = 0;
+	strcpy(hd_homerun->tuner, "0");
+	hd_homerun->tuner_len = strlen(hd_homerun->tuner);
+	hd_homerun->selected = -1;
+}
+
 void setup_burned_subs_tab(struct burned_subs_tab *burned_subs)
 {
 	burned_subs->is_burned_subs = nk_false;
@@ -311,7 +323,7 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	{
 		if(decoders->teletext_dvb == DVB){
 			nk_layout_row_dynamic(ctx, 40, 1);
-			nk_label_colored_wrap(ctx, "Teletext is disabled in Decoders->Teletext or DVB.", nk_rgb(255, 56, 0));
+			nk_label_colored_wrap(ctx, "Teletext is disabled in Decoders->Teletext or DVB.", nk_rgb(255, 56, 38));
 		}
 		else
 		{
@@ -904,11 +916,140 @@ void draw_debug_tab(struct nk_context *ctx, int *tab_screen_height,
 	nk_checkbox_label(ctx, "Output Levenshtein debug info(calculated distance, allowed, etc)", &debug->is_output_levenshtein);
 }
 
-void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height)
+void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height,
+		struct hd_homerun_tab *hd_homerun,
+		struct main_tab *main_settings)
 {
 	*tab_screen_height = 472;
-	nk_layout_row_dynamic(ctx, 30, 1);
-	nk_label(ctx, "HD Home RUn", NK_TEXT_LEFT);
+	int setup_device = nk_false;
+	const float location_ratio[] = { 0.35f, 0.5f, 0.15f };
+	const float devices_ratio[] = { 0.8f, 0.2f };
+	const float tuner_ratio[] = { .35f, 0.4f, 0.13 };
+	const float channel_ratio[] = { 0.35f, 0.4f };
+	const float program_ratio[] = { 0.35f, 0.4f };
+	const float done_ratio[] = { 0.45f, 0.1f };
+	const float ipv4_ratio[] = { 0.35f, 0.4f};
+	const float port_ratio[] = { 0.35f, 0.4f };
+	static int before_selected, after_selected;
+	static int done = nk_false;
+#if HD_HOMERUN
+	nk_layout_row_dynamic(ctx, 25, 1);
+	nk_label_colored_wrap(ctx, "'hdhomerun_config' command line utility found in environment.", nk_rgb(60, 255, 60));
+#else
+	nk_layout_row(ctx, NK_DYNAMIC, 25, 3, location_ratio);
+	nk_label(ctx, "'hdhomerun_config' utility*:", NK_TEXT_LEFT);
+	nk_edit_string(ctx, NK_EDIT_SIMPLE, hd_homerun->location, &hd_homerun->location_len, 260, nk_filter_ascii);
+	if(nk_button_label(ctx, "Browse"))
+	{
+		hd_homerun->is_homerun_browser_active = nk_true;
+		main_settings->scaleWindowForFileBrowser = nk_true;
+	}
+	nk_layout_row_dynamic(ctx, 40, 1);
+	nk_label_wrap(ctx, "*Absolute location of 'hdhomerun_config' executable. Displaying this message means "
+			"either utility is not installed or environment variables aren't set for proper detection.");
+
+#endif
+	nk_layout_row_dynamic(ctx, 120, 1);
+	if(nk_group_begin(ctx, "Choose a device:", NK_WINDOW_TITLE|NK_WINDOW_BORDER))
+	{
+
+		if(hd_homerun->device_num == 0)
+		{
+			nk_layout_row_dynamic(ctx, 20, 1);
+			nk_label_wrap(ctx, "No devices found, yet. Please check your settings and try again.");
+		}
+		else
+		{
+			nk_layout_row_dynamic(ctx, 20, 1);
+			for(int i = 0; i < hd_homerun->device_num; i++)
+			{
+				nk_selectable_label(ctx, hd_homerun->devices[i], NK_TEXT_LEFT, &hd_homerun->device_select[i]);
+				if(hd_homerun->device_select[i])
+				{
+					before_selected = i - 1;
+					after_selected = i + 1;
+					for( int j = 0; j <= before_selected; j++)
+						hd_homerun->device_select[j] = nk_false;
+					for(int j = after_selected; j < hd_homerun->device_num; j++)
+						hd_homerun->device_select[j] = nk_false;
+				}
+			}
+			for(int i = 0; i < hd_homerun->device_num; i++)
+			{
+				if(hd_homerun->device_select[i] == nk_true)
+				{
+					hd_homerun->selected = i;
+					break;
+				}
+				else
+					hd_homerun->selected = -1;
+			}
+		}
+
+
+		nk_group_end(ctx);
+	}
+	nk_layout_row(ctx, NK_DYNAMIC, 25, 2, devices_ratio);
+	nk_spacing(ctx, 1);
+	if(hd_homerun->selected == -1)
+	{
+		if(nk_button_label(ctx, "Find Devices"))
+		{
+			pthread_attr_init(&attr_find);
+
+			int err = pthread_create(&tid_find, &attr_find, find_hd_homerun_devices, hd_homerun);
+			if(!err)
+				printf("Find Device thread created!\n");
+
+		}
+	}
+	if(hd_homerun->selected != -1 && done == nk_false)
+	{
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 3, tuner_ratio);
+		nk_label(ctx, "Tuner number in use:", NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, hd_homerun->tuner, &hd_homerun->tuner_len, 2, nk_filter_decimal);
+		nk_label(ctx, "(default is 0)", NK_TEXT_RIGHT);
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, channel_ratio);
+		nk_label(ctx, "Channel number to select:", NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, hd_homerun->channel, &hd_homerun->channel_len, 5, nk_filter_decimal);
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, program_ratio);
+		nk_label(ctx, "Program number for extraction:", NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, hd_homerun->program, &hd_homerun->program_len, 10, nk_filter_decimal);
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2,ipv4_ratio);
+		nk_label(ctx, "Target IPv4 address:", NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, hd_homerun->ipv4_address, &hd_homerun->ipv4_address_len, 16, nk_filter_ascii);
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, port_ratio);
+		nk_label(ctx, "Target Port number:", NK_TEXT_LEFT);
+		nk_edit_string(ctx, NK_EDIT_SIMPLE, hd_homerun->port_number, &hd_homerun->port_number_len, 7, nk_filter_decimal);
+
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, done_ratio);
+		nk_spacing(ctx, 1);
+		if(nk_button_label(ctx, "Done"))
+		{
+				pthread_attr_init(&attr_setup);
+				int err = pthread_create(&tid_setup, &attr_setup, setup_hd_homerun_device, hd_homerun);
+				if(!err)
+					printf("Setup Device thread created!\n");
+
+				pthread_join(tid_setup, NULL);
+				done = nk_true;
+		}
+	}
+	else
+	{
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_label(ctx, "Stream is being transimitted to target.", NK_TEXT_CENTERED);
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_label(ctx, "Please start CCExtractor with UDP settings if not started.", NK_TEXT_CENTERED);
+	}
+
+
+
 }
 
 void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct burned_subs_tab *burned_subs)

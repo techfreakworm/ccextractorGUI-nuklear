@@ -147,6 +147,7 @@ void* feed_files_for_extraction(void* file_args)
 	printf("File feeding over\n");
 }
 
+
 void setup_and_create_thread(struct main_tab *main_settings, struct built_string *command)
 {
 	extract_args.main_threadsettings = (struct main_tab*)main_settings;
@@ -156,4 +157,126 @@ void setup_and_create_thread(struct main_tab *main_settings, struct built_string
 	int err = pthread_create(&tid_launch, &attr_launch, feed_files_for_extraction, &extract_args);
 	if (!err)
 		printf("Feeder created!\n");
+}
+
+
+/*THREAD FUNCTIONS FOR HD_HOMERUN*/
+void* find_hd_homerun_devices(void *args)
+{
+	char command[300];
+	extract_args.homerun_thread = (struct hd_homerun_tab*)args;
+	int wait = 0;
+	FILE *file;
+	char line[200];
+	int device_success;
+	char device[200];
+
+#if UNIX
+	struct timespec time;
+	time.tv_sec = 0;
+	time.tv_nsec = 10000000L;
+#endif
+
+
+#if HD_HOMERUN
+	strcpy(command, "hdhomerun_config");
+#else
+	strncpy(command, extract_args.homerun_thread->location, extract_args.homerun_thread->location_len);
+#endif
+	strcpy(command, " discover >> homerun.log");
+	system(command);
+
+
+	file = fopen("homerun.log", "r");
+
+	while (file == NULL) {
+			printf("Cannot open file! Trying again.\n");
+			file = fopen("homerun.log", "r");
+#if UNIX
+			nanosleep(&time, NULL);
+#else
+			_sleep(10);
+#endif
+			wait++;
+			if (wait >= MAX_WAIT) {
+				printf("POPUP:Make sure the directory isn't write protected!");
+				break;
+			}
+
+		}
+
+	while(1)
+	{
+		fgets(line, sizeof(line), file);
+		device_success = sscanf(line, "hdhomerun device %[^\n]", device);
+		if(feof(file))
+			break;
+		if(device_success == 1)
+		{
+			if(extract_args.homerun_thread->device_num == 0)
+			{
+				extract_args.homerun_thread->devices = malloc(sizeof(char*));
+				extract_args.homerun_thread->devices[extract_args.homerun_thread->device_num] = strdup(device);
+				extract_args.homerun_thread->device_num++;
+			}
+			else
+			{
+				extract_args.homerun_thread->devices = realloc(extract_args.homerun_thread->devices,
+						(extract_args.homerun_thread->device_num + 1)*sizeof(char*));
+				extract_args.homerun_thread->devices[extract_args.homerun_thread->device_num] = strdup(device);
+				extract_args.homerun_thread->device_num++;
+			}
+		}
+	}
+printf("Find device thread finished\n");
+
+}
+
+void* setup_hd_homerun_device(void *args)
+{
+	char device[20];
+	extract_args.homerun_thread = (struct hd_homerun_tab*)args;
+	char channel_command[300];
+	char program_command[300];
+	char target_command[300];
+
+	sscanf(extract_args.homerun_thread->devices[extract_args.homerun_thread->selected], "%s", device);
+#if HD_HOMERUN
+	strcpy(channel_command, "hdhomerun_config");
+	strcpy(program_command, "hdhomerun_config");
+	strcpy(target_command, "hdhomerun_config");
+#else
+	strncpy(channel_command, extract_args.homerun_thread->location, extract_args.homerun_thread->location_len);
+	strncpy(program_command, extract_args.homerun_thread->location, extract_args.homerun_thread->location_len);
+	strncpy(target_command, extract_args.homerun_thread->location, extract_args.homerun_thread->location_len);
+#endif
+	strcat(channel_command, " ");
+	strcat(program_command, " ");
+	strcat(target_command, " ");
+
+	strcat(channel_command, device);
+	strcat(program_command, device);
+	strcat(target_command, device);
+
+	strcat(channel_command, " set /tuner");
+	strcat(program_command, " set /tuner");
+	strcat(target_command, " set /tuner");
+
+	strncat(channel_command, extract_args.homerun_thread->tuner, extract_args.homerun_thread->tuner_len);
+	strncat(program_command, extract_args.homerun_thread->tuner, extract_args.homerun_thread->tuner_len);
+	strncat(target_command, extract_args.homerun_thread->tuner, extract_args.homerun_thread->tuner_len);
+
+	strcat(channel_command, "/channel ");
+	strcat(program_command, "/program ");
+	strcat(target_command, "/target ");
+
+	strncat(channel_command, extract_args.homerun_thread->channel, extract_args.homerun_thread->channel_len);
+	strncat(program_command, extract_args.homerun_thread->program, extract_args.homerun_thread->program_len);
+	strncat(target_command, extract_args.homerun_thread->ipv4_address, extract_args.homerun_thread->ipv4_address_len);
+
+	system(channel_command);
+	system(program_command);
+	system(target_command);
+
+	pthread_exit(0);
 }
