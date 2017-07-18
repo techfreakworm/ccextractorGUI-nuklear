@@ -1040,7 +1040,7 @@ void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height,
 				done = nk_true;
 		}
 	}
-	else
+	if (done == nk_true)
 	{
 		nk_layout_row_dynamic(ctx, 20, 1);
 		nk_label(ctx, "Stream is being transimitted to target.", NK_TEXT_CENTERED);
