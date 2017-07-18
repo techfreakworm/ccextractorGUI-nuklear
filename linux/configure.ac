@@ -44,6 +44,7 @@ AM_CONDITIONAL(OCR_IS_ENABLED, [ test $HAS_TESSERACT -gt 0 && test $HAS_LEPT -gt
 AM_CONDITIONAL(TESSERACT_PRESENT, [ test ! -z  `pkg-config --libs-only-l --silence-errors tesseract` ])
 AM_CONDITIONAL(TESSERACT_PRESENT_RPI, [ test -d "/usr/include/tesseract" && test `ls -A /usr/include/tesseract | wc -l` -gt 0 ])
 AM_CONDITIONAL(SYS_IS_LINUX, [ test `uname -s` = "Linux"])
+AM_CONDITIONAL(SYS_IS_MAC, [ test `uname -s` = "Darwin"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

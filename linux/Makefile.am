@@ -21,14 +21,21 @@ ccextractorgui_SOURCES = \
 	../src/nuklear_lib/nuklear.h \
 	../src/nuklear_lib/nuklear_glfw_gl2.h
 
-ccextractorgui_CFLAGS = -std=gnu99 -s
+ccextractorgui_CFLAGS = -std=gnu99
 
 #ccextractorgui_CPPFLAGS = -I../fonts/ -I../icons/ -I../nuklear_lib
 
-ccextractorgui_LDADD = -lglfw3 -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lGLEW -lGL -lGLU -lm -ldl -lpthread
+ccextractorgui_LDADD = -lGLEW 
 
 if SYS_IS_LINUX
+ccextractorgui_LDADD += -lglfw3 -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lGL -lGLU -lm -ldl -lpthread
+ccextractorgui_CFLAGS += -s -O3 -DUNIX
+endif
+
+if SYS_IS_MAC
 ccextractorgui_CFLAGS += -O3 -DUNIX
+ccextractorgui_LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+ccextractorgui_LDADD += -lglfw  -lm -L/usr/local/lib -lpthread
 endif
 
 if HARDSUBX_IS_ENABLED
