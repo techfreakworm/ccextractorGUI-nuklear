@@ -400,7 +400,9 @@ file_browser_run(struct file_browser *browser,
                             	if(main_settings->filename_count == 0)
   	                            {
   	                            	main_settings->filenames = malloc(count * sizeof(*main_settings->filenames));
-  	                            	main_settings->filenames[main_settings->filename_count] = strdup(browser->file);
+  	                            	main_settings->filenames[main_settings->filename_count] = strdup("\"");
+  	                            	strcat(main_settings->filenames[main_settings->filename_count], browser->file);
+  	                            	strcat(main_settings->filenames[main_settings->filename_count], "\"");
                             	    main_settings->filename_count++;
                             	    isFileAdded = nk_true;
                             	    main_settings->is_file_browser_active = nk_false;
@@ -409,7 +411,9 @@ file_browser_run(struct file_browser *browser,
 								else
 								{
 									main_settings->filenames = realloc(main_settings->filenames, (main_settings->filename_count + 1) * sizeof(*main_settings->filenames));
-									main_settings->filenames[main_settings->filename_count] = strdup(browser->file);
+									main_settings->filenames[main_settings->filename_count] = strdup("\"");
+									strcat(main_settings->filenames[main_settings->filename_count], browser->file);
+									strcat(main_settings->filenames[main_settings->filename_count], "\"");
 									main_settings->filename_count++;
 									isFileAdded = nk_true;
 									main_settings->is_file_browser_active = nk_false;

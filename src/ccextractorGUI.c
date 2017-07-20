@@ -95,8 +95,9 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 	{
 		printf("\n%d", main_settings.filename_count);
 		
-		//main_settings.filenames[main_settings.filename_count] = malloc(sizeof(paths[i]));
-		main_settings.filenames[main_settings.filename_count] = strdup(paths[i]);
+		main_settings.filenames[main_settings.filename_count] = strdup("\"");
+		strcat(main_settings.filenames[main_settings.filename_count], paths[i]);
+		strcat(main_settings.filenames[main_settings.filename_count], "\"");
 		main_settings.filename_count++;
 	}
 
@@ -717,8 +718,7 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->port_select = 0;
 	main_settings->is_file_browser_active = nk_false;
 	main_settings->scaleWindowForFileBrowser = nk_false;
-	main_settings->preview_string = (char*)malloc(1000*sizeof(char));
-	main_settings->preview_string_len = 0;
+	main_settings->preview_string_count = 0;
 }
 
 char* truncate_path_string(char *filePath)
