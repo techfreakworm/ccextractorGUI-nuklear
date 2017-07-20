@@ -37,7 +37,7 @@ void* read_data_from_thread(void* read_args)
 	char line[500];
 	char sub_line[500];
 	char prog_line[500];
-	static int subs_success, progress_success;
+	int subs_success, progress_success;
 	file = fopen("gui_report.log", "r");
 
 	while (file == NULL) {
@@ -56,23 +56,29 @@ void* read_data_from_thread(void* read_args)
 
 	}
 
-	while( progress_count != PROGRESS_COMPLETE)
+	while(1)
 	{
-		line_ptr = fgets(line, sizeof(line), file);
+		fgets(line, sizeof(line), file);
 		progress_success = sscanf(line, "###PROGRESS#%d#%d#%d", &progress_count, &unknown1, &unknown2);
 		if(progress_success == 3)
 			read_params->main_threadsettings->progress_cursor = progress_count;
-//		subs_success = sscanf(line, "###SUBTITLE#%[^#]#%[^#]#%[^\n]", t_start, t_end, subtitle);
+		subs_success = sscanf(line, "###SUBTITLE#%[^#]#%[^#]#%[^\n]", t_start, t_end, subtitle);
 //		printf("%d", subs_success);
-//		if(subs_success == 3)
-//		{
-//			sprintf(buffer, "%s-%s: %s\n", t_start, t_end, subtitle);
-//			if(read_params->main_threadsettings->preview_string_len == 0)
-//				read_params->main_threadsettings->preview_string = strdup(buffer);
-//			else
-//				strncat(read_params->main_threadsettings->preview_string, buffer, strlen(buffer));
-//			read_params->main_threadsettings->preview_string_len += strlen(buffer);
-//		}
+		if(subs_success == 3)
+		{
+			sprintf(buffer, "%s-%s: %s\n", t_start, t_end, subtitle);
+			if(read_params->main_threadsettings->preview_string_count == 0)
+				read_params->main_threadsettings->preview_string =
+						malloc(sizeof(*read_params->main_threadsettings->preview_string));
+			else
+				read_params->main_threadsettings->preview_string =
+						realloc(read_params->main_threadsettings->preview_string,
+								(read_params->main_threadsettings->preview_string_count + 1)*sizeof(char*));
+
+			read_params->main_threadsettings->preview_string[read_params->main_threadsettings->preview_string_count] = strdup(buffer);
+			puts(read_params->main_threadsettings->preview_string[read_params->main_threadsettings->preview_string_count]);
+			read_params->main_threadsettings->preview_string_count++;
+		}
 //		subs_success = sscanf(line, "###SUBTITLE###%[^\n]s", subtitle);
 //		printf("%d", subs_success);
 //		if(subs_success == 1)
@@ -87,20 +93,16 @@ void* read_data_from_thread(void* read_args)
 //			read_params->main_threadsettings->preview_string_len += strlen(buffer);
 //
 //		}
-
-		//printf(read_params->main_threadsettings->preview_string);
-		//memset(&buffer[0], 0, sizeof(buffer);
-//		sscanf("###SUBTITLE###%[^n]", subtitle);
-//		strcat(read_params->main_threadsettings->preview_string, subtitle);
-//		printf(read_params->main_threadsettings->preview_string);
-
+		if(progress_count == PROGRESS_COMPLETE)
+			break;
 
 	}
 
 	printf("progress count:%d\n", progress_count);
 	fclose(file);
 	printf("File closed\n");
-	puts(read_params->main_threadsettings->preview_string);
+	for(int i = 0; i<read_params->main_threadsettings->preview_string_count; i++)
+		printf("%s",read_params->main_threadsettings->preview_string[i]);
 	pthread_exit(0);
 }
 

@@ -20,8 +20,8 @@ struct main_tab
 	int is_file_browser_active;
 	int scaleWindowForFileBrowser;
 	nk_size progress_cursor;
-	char* preview_string;
-	int preview_string_len;
+	char** preview_string;
+	int preview_string_count;
 };
 
 void setup_main_settings(struct main_tab *main_settings);

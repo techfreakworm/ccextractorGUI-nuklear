@@ -717,8 +717,7 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->port_select = 0;
 	main_settings->is_file_browser_active = nk_false;
 	main_settings->scaleWindowForFileBrowser = nk_false;
-	main_settings->preview_string = (char*)malloc(1000*sizeof(char));
-	main_settings->preview_string_len = 0;
+	main_settings->preview_string_count = 0;
 }
 
 char* truncate_path_string(char *filePath)
