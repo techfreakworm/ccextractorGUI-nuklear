@@ -8,7 +8,7 @@
 preview(struct nk_context *ctx, int x, int y, int width, int height, struct main_tab *main_settings)
 {
 	static int i;
-	if (nk_begin(ctx, "Preview", nk_rect(x, y, width, height), NK_WINDOW_TITLE))
+	if (nk_begin(ctx, "Preview", nk_rect(x, y, width, height), NK_WINDOW_TITLE|NK_WINDOW_BACKGROUND))
 	{
 		nk_layout_row_dynamic(ctx, 20, 1);
 		for( i = 0; i < main_settings->preview_string_count; i++)
