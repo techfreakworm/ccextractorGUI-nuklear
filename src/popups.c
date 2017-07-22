@@ -242,13 +242,14 @@ void draw_about_ccx_popup(struct nk_context *ctx, int *show_about_ccx, struct nk
 		*show_about_ccx = nk_false;
 }
 
-void draw_progress_details_popup(struct nk_context *ctx, int *show_progress_details)
+void draw_progress_details_popup(struct nk_context *ctx, int *show_progress_details, struct main_tab *main_settings)
 {
 	static struct nk_rect s = { 20,30,480,500 };
 	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "Progress Details of Extraction", NK_WINDOW_CLOSABLE, s))
 	{
-		nk_layout_row_dynamic(ctx, 40, 1);
-		nk_label_wrap(ctx, "Progress Detail will come here!");
+		nk_layout_row_dynamic(ctx, 20, 1);
+		for( int i = 0; i < main_settings->activity_string_count; i++)
+			nk_label_wrap(ctx, main_settings->activity_string[i]);
 		nk_popup_end(ctx);
 	}
 	else

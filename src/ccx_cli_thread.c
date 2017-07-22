@@ -14,14 +14,83 @@ void* extract_thread(void* extract_args)
 	strcpy(term_string, params->command_string);
 	strcat(term_string, " ");
 	strcat(term_string, params->file_string);
-	strcat(term_string, " >ccx.log 2>gui_report.log");
+	strcat(term_string, " 1>>ccx.log 2>>gui_report.log");
 	printf("%s", term_string);
 	system(term_string);
 	pthread_exit(0);
 }
 
+void* read_activity_data(void *read_args)
+{
+	puts("Inside activity thread!");
+	char line[500];
+	char buffer[500];
+#if UNIX
+	struct timespec time;
+	time.tv_sec = 0;
+	time.tv_nsec = 10000000L;
+#endif
+	int wait = 0;
+	struct args_extract *read_params = (struct args_extract*)read_args;
+	FILE *file;
+	char current_input[500];
+	int concat_index = 0;
+	file = fopen("ccx.log", "r");
+
+	while(file == NULL)
+	{
+		printf("Cannot open ccx.log, trying again.\n");
+		file = fopen("ccx.log", "r");
+#if UNIX
+		nanosleep(&time, NULL);
+#else
+		_sleep(10);
+#endif
+		wait++;
+		if(wait == MAX_WAIT)
+		{
+			printf("POPUP:make sure the directory isn't write protected.\n");
+			break;
+		}
+	}
+
+	while(!feof(file))
+	{
+		if (fgets(current_input, sizeof(current_input), file) == NULL)
+			continue;
+		if (concat_index == 0) {
+			strcpy(line, current_input);
+		} else {
+			strcat(line, current_input);
+		}
+		concat_index++;
+		if (current_input[strlen(current_input) - 1] != '\n')
+			continue;
+
+		sscanf(line, "%[^\n]", buffer);
+		if(read_params->main_threadsettings->activity_string_count == 0)
+			read_params->main_threadsettings->activity_string =
+					malloc(sizeof(*read_params->main_threadsettings->activity_string));
+		else
+			read_params->main_threadsettings->activity_string =
+					realloc(read_params->main_threadsettings->activity_string,
+							(read_params->main_threadsettings->activity_string_count + 1)*sizeof(char*));
+
+		read_params->main_threadsettings->activity_string[read_params->main_threadsettings->activity_string_count] = strdup(buffer);
+		read_params->main_threadsettings->activity_string_count++;
+
+
+
+		memset(line, 0, sizeof(line));
+		memset(buffer, 0, sizeof(buffer));
+		concat_index = 0;
+	}
+}
+
 void* read_data_from_thread(void* read_args)
 {
+	pthread_t tid_activity;
+	pthread_attr_t attr_activity;
 	static char buffer[500];
 	char t_start[6], t_end[6], subtitle1[100], subtitle2[100];
 #if UNIX
@@ -29,6 +98,8 @@ void* read_data_from_thread(void* read_args)
 	time.tv_sec = 0;
 	time.tv_nsec = 10000000L;
 #endif
+
+
 	int wait = 0;
 	struct args_extract *read_params = (struct args_extract*)read_args;
 	int unknown1 = 0, unknown2 = 0,progress_count = 0;
@@ -40,10 +111,17 @@ void* read_data_from_thread(void* read_args)
 	char sub_line[500];
 	char prog_line[500];
 	int subs_success1, subs_success2, progress_success;
+
+	/*Setup activity thread*/
+	pthread_attr_init(&attr_activity);
+	int err = pthread_create(&tid_activity, &attr_activity, read_activity_data, read_params);
+	if(!err)
+		puts("Activity Thread created");
+
 	file = fopen("gui_report.log", "r");
 
 	while (file == NULL) {
-		printf("Cannot open file! Trying again.\n");
+		printf("Cannot open gui_report.log, trying again.\n");
 		file = fopen("gui_report.log", "r");
 #if UNIX
 		nanosleep(&time, NULL);

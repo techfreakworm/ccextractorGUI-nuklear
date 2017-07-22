@@ -40,7 +40,7 @@
 //#define LEN(a) (sizeof(a)/sizeof(a)[0])
 #include "ccextractorGUI.h"
 #include "tabs.h"
-#include "activity.c"
+#include "activity.h"
 #include "terminal.c"
 #include "preview.h"
 #include "popups.h"
@@ -257,6 +257,7 @@ int main(void)
 		static int show_about_ccx = nk_false;
 		static int show_getting_started = nk_false;
 		static int show_preferences_network = nk_false;
+
 
 
 		//GUI
@@ -576,17 +577,20 @@ int main(void)
 			nk_layout_space_end(ctx);
 
 			//PROGRESS_DETAILS_BUTTON
-			nk_layout_row_dynamic(ctx, 20, 3);
-			nk_spacing(ctx, 1);
-			if (nk_button_label(ctx, "Progress Details"))
+			if(!show_activity_check)
 			{
-				show_progress_details = nk_true;
+				nk_layout_row_dynamic(ctx, 20, 3);
+				nk_spacing(ctx, 1);
+				if (nk_button_label(ctx, "Progress Details"))
+				{
+					show_progress_details = nk_true;
+				}
+				nk_spacing(ctx, 1);
 			}
-			nk_spacing(ctx, 1);
 
 			//PROGRESS_DETAILS_POPUP
 			if (show_progress_details)
-				draw_progress_details_popup(ctx, &show_progress_details);
+				draw_progress_details_popup(ctx, &show_progress_details, &main_settings);
 
 			//build command string
 			command_builder(&command, &main_settings, &network_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &burned_subs);
@@ -605,7 +609,7 @@ int main(void)
 				glfwSetWindowSize(win, 930, 550);
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			}
-			activity(ctx, 530, 0, 400, 550);
+			activity(ctx, 530, 0, 400, 550, &main_settings);
 			terminal(ctx, 0, 550, 530, 100, &command.term_string);
 			preview(ctx, 530, 550, 400, 100, &main_settings);
 		}
@@ -616,7 +620,7 @@ int main(void)
 				glfwSetWindowSize(win, 930, 650);
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			}
-			activity(ctx, 530, 0, 400, 650);
+			activity(ctx, 530, 0, 400, 650, &main_settings);
 			preview(ctx, 0, 550, 530, 100, &main_settings);
 		}
 		if (show_activity_check && !show_preview_check && show_terminal_check )
@@ -626,7 +630,7 @@ int main(void)
 				glfwSetWindowSize(win, 930, 650);
 				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 			}
-			activity(ctx, 530, 0, 400, 650);
+			activity(ctx, 530, 0, 400, 650, &main_settings);
 			terminal(ctx, 0, 550, 530, 100, &command.term_string);
 		}
 		if (show_terminal_check && show_preview_check && !show_activity_check )
@@ -646,7 +650,7 @@ int main(void)
 				glfwSetWindowSize(win, 930, 550);
 				glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
 			}
-			activity(ctx, 530, 0, 400, 550);
+			activity(ctx, 530, 0, 400, 550, &main_settings);
 		}
 		if (show_terminal_check && !show_activity_check && !show_preview_check )
 		{
@@ -721,6 +725,7 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->is_file_browser_active = nk_false;
 	main_settings->scaleWindowForFileBrowser = nk_false;
 	main_settings->preview_string_count = 0;
+	main_settings->activity_string_count = 0;
 }
 
 char* truncate_path_string(char *filePath)

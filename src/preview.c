@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "preview.h"
 
-preview(struct nk_context *ctx, int x, int y, int width, int height, struct main_tab *main_settings)
+int preview(struct nk_context *ctx, int x, int y, int width, int height, struct main_tab *main_settings)
 {
 	static int i;
 	if (nk_begin(ctx, "Preview", nk_rect(x, y, width, height), NK_WINDOW_TITLE|NK_WINDOW_BACKGROUND))

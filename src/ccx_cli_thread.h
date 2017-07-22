@@ -29,6 +29,7 @@ pthread_attr_t attr_find;
 pthread_t tid_setup;
 pthread_attr_t attr_setup;
 
+void* read_activity_data(void *read_args);
 void* read_data_from_thread(void* read_args);
 void* extract_thread(void* extract_args);
 void* feed_files_for_extraction(void* file_args);

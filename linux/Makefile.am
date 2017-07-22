@@ -5,6 +5,7 @@ ccextractorgui_SOURCES = \
 	../src/ccextractorGUI.c \
 	../src/ccextractorGUI.h \
 	../src/activity.c \
+	../src/activity.h \
 	../src/terminal.c \
 	../src/preview.c \
 	../src/ccx_cli_thread.c \
