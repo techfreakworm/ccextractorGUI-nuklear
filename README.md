@@ -3,6 +3,13 @@ Graphical User Interface for CCExtractor (GSoC 2017)
 
 ## Note: Currently the GUI is fully functional and up to date with proposal for Macintosh and Linux only. Windows build will be ready as stated in GSoC proposal.
 
+
+### Install Dependencies
+1. Insall [GLEW](http://glew.sourceforge.net/) from source.
+2. Instll [GLFW](http://www.glfw.org/) from source.
+3. Depending upon your distribution you may or may not require X-Windowing-Server-devel packages. Most commonly required packages are: Xinerama, Xcursor, Xrandr, Xxf86vm which would be available in package manager repositories. 
+
+
 ### To compile
 #### Navigate to `src` directory and run below command in terminal
     gcc *.c -DUNIX -lglfw3 -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lGLEW -lGL -lGLU -lm -ldl -lpthread
