@@ -470,8 +470,8 @@ int main(void)
 
 
 			//RECTANGLE-FILES
-			static const float ratio_rect_files[] = { 0.10f,0.80f,0.10f };
-			nk_layout_row(ctx, NK_DYNAMIC, 180, 3, ratio_rect_files);
+			static const float ratio_rect_files[] = { 0.10f,0.80f };
+			nk_layout_row(ctx, NK_DYNAMIC, 180, 2, ratio_rect_files);
 			nk_spacing(ctx, 1);
 			if (nk_group_begin(ctx, "Files in extraction queue:", NK_WINDOW_BORDER | NK_WINDOW_TITLE ))
 			{
@@ -529,7 +529,7 @@ int main(void)
 
 			//RECTANGLE-INFO
 			static const float ratio_rect_info[] = { 0.10f,0.80f,0.10f };
-			nk_layout_row(ctx, NK_DYNAMIC, 75, 3, ratio_rect_info);
+			nk_layout_row(ctx, NK_DYNAMIC, 75, 2, ratio_rect_info);
 			nk_spacing(ctx, 1);
 			if (nk_group_begin(ctx, "Extraction Info:", NK_WINDOW_BORDER))
 			{

@@ -214,10 +214,10 @@ void draw_input_tab(struct nk_context *ctx, int *tab_screen_height, struct input
 	const float stream_type_pid_ratio[] = { 0.7f,0.3f };
 	const float mpeg_type_ratio[] = { 0.7f,0.3f };
 	const float teletext_page_ratio[] = { 0.75f,0.25f };
-	const float stream_teletext_ratio[] = { 0.5f, 0.51f };
+	const float stream_teletext_ratio[] = { 0.5f, 0.501f };
 	const float wait_data_ratio[] = { 0.6f, 0.25f, 0.15f };
 	const float gen_type_ratio[] = { 0.3f, 0.7f };
-	const float gen_time_ratio[] = { 0.6f ,0.4f};
+	const float gen_time_ratio[] = { 0.6f ,0.401f};
 	const char *split_type[] = { "Individual Files", "Parts of same video. Cut by generic tool", "Parts of same video. Cut by video tool" };
 	static int split_num;
 	*tab_screen_height = 472;
@@ -493,12 +493,12 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 	static int len;
 	static int cap_len;
 	static int color_len = 6;
-	const float gen_enc_ratio[] = { 0.695f, 0.29f,0.005f };
+	const float gen_enc_ratio[] = { 0.701f, 0.302f };
 	const float type_ratio[] = { 0.3f,0.7f };
 	const float out_file_ratio[] = { 0.3f,0.53f,0.17f };
 	const float cap_file_ratio[] = { 0.2f,0.63f,0.17f };
 	const float delay_ratio[] = { 0.5f, 0.2f, 0.3f };
-	const float color_roll_ratio[] = { 0.6f,0.4f };
+	const float color_roll_ratio[] = { 0.6f,0.401f };
 	const float color_check_ratio[] = { 0.6f,0.23f,0.07f,0.1f };
 	*tab_screen_height = 472;
 	nk_layout_row(ctx, NK_DYNAMIC, 160, 2, gen_enc_ratio);
@@ -561,6 +561,7 @@ void draw_output_tab(struct nk_context *ctx, int *tab_screen_height, struct outp
 		nk_label(ctx, "*( For UNIX programs )", NK_TEXT_LEFT);
 		nk_group_end(ctx);
 	}
+
 
 	nk_layout_row(ctx, NK_DYNAMIC, 100, 2, gen_enc_ratio);
 	//Capitalization Group
@@ -1055,7 +1056,7 @@ void draw_hd_homerun_tab(struct nk_context *ctx, int *tab_screen_height,
 void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct burned_subs_tab *burned_subs)
 {
 	*tab_screen_height = 472;
-	const float color_mode_ratio[] = { 0.65f, 0.35f, 0.05f };
+	const float color_mode_ratio[] = { 0.65f, 0.351f};
 	const float preset_ratio[] = { 0.4f, 0.5f };
 	const float custom_ratio[] = { 0.4f, 0.5f};
 	const float delay_ratio[] = { 0.4f, 0.2f, 0.2f };
