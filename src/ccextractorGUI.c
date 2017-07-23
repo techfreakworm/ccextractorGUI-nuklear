@@ -321,6 +321,14 @@ int main(void)
 				file_browser_run(&browser, ctx, &main_settings, &output, &debug, &hd_homerun);
 			}
 
+		//Thread popop when file can't be read
+			if(main_settings.threadPopup)
+				draw_thread_popup(ctx, &main_settings.threadPopup);
+
+		//Thread popup for hd_homerun thread
+			if(hd_homerun.threadPopup)
+				draw_thread_popup(ctx, &hd_homerun.threadPopup);
+
 			nk_layout_row_end(ctx);
 			nk_menubar_end(ctx);
 			nk_layout_space_begin(ctx, NK_STATIC, 15, 1);
@@ -726,6 +734,7 @@ void setup_main_settings(struct main_tab *main_settings)
 	main_settings->scaleWindowForFileBrowser = nk_false;
 	main_settings->preview_string_count = 0;
 	main_settings->activity_string_count = 0;
+	main_settings->threadPopup = nk_false;
 }
 
 char* truncate_path_string(char *filePath)

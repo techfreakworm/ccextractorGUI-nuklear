@@ -22,6 +22,7 @@ void draw_getting_started_popup(struct nk_context *ctx, int *show_getting_starte
 void draw_about_ccx_popup(struct nk_context *ctx, int *show_about_ccx, struct nk_user_font *droid_big, struct nk_user_font *droid_head);
 void draw_progress_details_popup(struct nk_context *ctx, int *show_progress_details, struct main_tab *main_settings);
 void draw_color_popup(struct nk_context *ctx, struct output_tab *output);
+void draw_thread_popup(struct nk_context *ctx, int *show_thread_popup);
 
 void setup_network_settings(struct network_popup *network_settings);
 

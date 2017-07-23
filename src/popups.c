@@ -278,3 +278,31 @@ void draw_color_popup(struct nk_context *ctx, struct output_tab *output)
 	else
 		output->color_popup = nk_false;
 }
+
+
+void draw_thread_popup(struct nk_context *ctx, int *show_thread_popup)
+{
+	static struct nk_rect s = { 100, 100, 300, 175 };
+	static const float ratio[] = { 0.85f, 0.15f };
+	if (nk_popup_begin(ctx, NK_POPUP_STATIC, "File Read Error",
+			NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER, s))
+	{
+		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_label(ctx, "Cannot read file.", NK_TEXT_CENTERED);
+		nk_layout_row_dynamic(ctx, 60, 1);
+		nk_label_wrap(ctx, "Make sure the directory isn't write protected OR you are running the program with write permissions.");
+
+
+		nk_layout_row(ctx, NK_DYNAMIC, 25, 2, ratio);
+		nk_spacing(ctx, 1);
+		if(nk_button_label(ctx, "OK"))
+		{
+			*show_thread_popup = nk_false;
+			nk_popup_close(ctx);
+		}
+		nk_popup_end(ctx);
+	}
+
+	else
+		*show_thread_popup = nk_false;
+}

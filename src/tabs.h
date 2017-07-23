@@ -208,6 +208,7 @@ struct hd_homerun_tab{
 	char port_number[8];
 	int port_number_len;
 	int selected;
+	int threadPopup;
 };
 
 /*Tab Functions*/

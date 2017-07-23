@@ -182,6 +182,7 @@ void setup_hd_homerun_tab(struct hd_homerun_tab *hd_homerun)
 	strcpy(hd_homerun->tuner, "0");
 	hd_homerun->tuner_len = strlen(hd_homerun->tuner);
 	hd_homerun->selected = -1;
+	hd_homerun->threadPopup = nk_false;
 }
 
 void setup_burned_subs_tab(struct burned_subs_tab *burned_subs)

@@ -49,8 +49,8 @@ void* read_activity_data(void *read_args)
 		wait++;
 		if(wait == MAX_WAIT)
 		{
-			printf("POPUP:make sure the directory isn't write protected.\n");
-			break;
+			read_params->main_threadsettings->threadPopup = nk_true;
+			return 0;
 		}
 	}
 
@@ -130,8 +130,8 @@ void* read_data_from_thread(void* read_args)
 #endif
 		wait++;
 		if (wait >= MAX_WAIT) {
-			printf("POPUP:Make sure the directory isn't write protected!");
-			break;
+			read_params->main_threadsettings->threadPopup = nk_true;
+			return 0;
 		}
 
 	}
@@ -293,8 +293,8 @@ void* find_hd_homerun_devices(void *args)
 #endif
 			wait++;
 			if (wait >= MAX_WAIT) {
-				printf("POPUP:Make sure the directory isn't write protected!");
-				break;
+				extract_args.homerun_thread->threadPopup = nk_true;
+				return 0;
 			}
 
 		}

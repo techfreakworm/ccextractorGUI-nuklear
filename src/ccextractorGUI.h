@@ -24,6 +24,7 @@ struct main_tab
 	int activity_string_count;
 	char** preview_string;
 	int preview_string_count;
+	int threadPopup;
 };
 
 void setup_main_settings(struct main_tab *main_settings);
