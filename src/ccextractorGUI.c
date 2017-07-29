@@ -47,6 +47,7 @@
 #include "command_builder.h"
 #include "ccx_cli_thread.h"
 #include "file_browser.h"
+#include "save_load_data.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -244,9 +245,27 @@ int main(void)
 
     file_browser_init(&browser, &media);
 
+    /*Read Last run state*/
+    FILE *loadFile;
+    loadFile = fopen("ccxGUI.ini", "r");
+    if(loadFile != NULL)
+    {
+    	printf("File found and reading it!\n");
+    	load_data(loadFile, &main_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &hd_homerun, &burned_subs);
+    	fclose(loadFile);
+    }
+
 	/*Main GUI loop*/
-	while (!glfwWindowShouldClose(win))
+	while (nk_true)
 	{
+		if(glfwWindowShouldClose(win))
+		{
+			FILE *saveFile;
+			saveFile = fopen("ccxGUI.ini", "w");
+			save_data(saveFile, &main_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &hd_homerun, &burned_subs);
+			fclose(saveFile);
+			break;
+		}
 		//Input
 		glfwPollEvents();
 		nk_glfw3_new_frame();
@@ -272,7 +291,21 @@ int main(void)
 			nk_layout_row_push(ctx, 80);
 			if (nk_menu_begin_label(ctx, "Preferences", NK_TEXT_LEFT, nk_vec2(120, 200))) {
 				nk_layout_row_dynamic(ctx, 30, 1);
-				nk_menu_item_label(ctx, "Reset Defaults", NK_TEXT_LEFT);
+				if(nk_menu_item_label(ctx, "Reset Defaults", NK_TEXT_LEFT))
+				{
+					remove("ccxGUI.ini");
+					setup_main_settings(&main_settings);
+					setup_network_settings(&network_settings);
+					setup_output_tab(&output);
+					setup_decoders_tab(&decoders);
+					setup_credits_tab(&credits);
+					setup_input_tab(&input);
+					setup_advanced_input_tab(&advanced_input);
+					setup_debug_tab(&debug);
+					setup_hd_homerun_tab(&hd_homerun);
+					setup_burned_subs_tab(&burned_subs);
+
+				}
 				if (nk_menu_item_label(ctx, "Network Settings", NK_TEXT_LEFT))
 					show_preferences_network = nk_true;
 				nk_menu_end(ctx);
@@ -422,12 +455,11 @@ int main(void)
 		//RADIO BUTTON 1 
 			static const float ratio_button[] = { .10f, .90f };
 			static const float check_extension_ratio[] = { .10f, .53f, .12f, .15f, .10f };
-			enum { PORT, FILES };
-			static int op = FILES;
+			//static int op = FILES;
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 2, ratio_button);
 			nk_spacing(ctx, 1);
-			if (nk_option_label(ctx, "Extract from files below:", op == FILES)) {
-				op = FILES;
+			if (nk_option_label(ctx, "Extract from files below:", main_settings.port_or_files == FILES)) {
+				//op = FILES;
 				main_settings.port_or_files = FILES;
 			}
 
@@ -516,8 +548,8 @@ int main(void)
 			static const float ratio_port[] = { 0.10f,0.20f,0.20f,0.20f,0.20f,0.10f };
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_port);
 			nk_spacing(ctx, 1);
-			if (nk_option_label(ctx, "Extract from", op == PORT)) {
-				op = PORT;
+			if (nk_option_label(ctx, "Extract from", main_settings.port_or_files == PORT)) {
+				//op = PORT;
 				main_settings.port_or_files = PORT;
 			}
 			main_settings.port_select = nk_combo(ctx, main_settings.port_type, 2, main_settings.port_select, 20, nk_vec2(85,100));

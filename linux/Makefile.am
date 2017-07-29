@@ -12,6 +12,8 @@ ccextractorgui_SOURCES = \
 	../src/ccx_cli_thread.h \
 	../src/command_builder.c \
 	../src/command_builder.h \
+	../save_load_data.c \
+	../save_load_data.h \
 	../src/file_browser.c \
 	../src/file_browser.h \
 	../src/popups.c \
