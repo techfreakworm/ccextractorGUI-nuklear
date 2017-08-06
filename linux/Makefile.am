@@ -344,12 +344,14 @@ ccextractorGUI_SOURCES = \
 
 ccextractorGUI_CFLAGS = -std=gnu99
 
-ccextractorGUI_LDADD = ${glew_LIBS}
-ccextractorGUI_LDADD += ${glfw3_LIBS}
-ccextractorGUI_LDADD += -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lm -ldl -lpthread
+
+ccextractorGUI_LDADD = ${glfw3_LIBS}
+
 
 if SYS_IS_LINUX
 ccextractorGUI_CFLAGS += -s -O3 -DUNIX
+ccextractorGUI_LDADD += ${glew_LIBS}
+ccextractorGUI_LDADD += -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lm -ldl -lpthread
 endif
 
 if HARDSUBX_IS_ENABLED
