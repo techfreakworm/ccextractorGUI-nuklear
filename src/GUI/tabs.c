@@ -203,7 +203,7 @@ void setup_burned_subs_tab(struct burned_subs_tab *burned_subs)
 	burned_subs->subs_color[5] = "magenta";
 	burned_subs->subs_color[6] = "red";
 	burned_subs->custom_hue_len = 0;
-	burned_subs->ocr_mode = FRAME;
+	burned_subs->ocr_mode = FRAME_WISE;
 	strcpy(burned_subs->min_duration, "0.5");
 	burned_subs->min_duration_len = strlen(burned_subs->min_duration);
 	burned_subs->luminance_threshold = 95;
@@ -1062,21 +1062,21 @@ void draw_burned_subs_tab(struct nk_context *ctx, int *tab_screen_height, struct
 	if(nk_group_begin(ctx, "OCR mode", NK_WINDOW_TITLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER))
 	{
 		nk_layout_row_dynamic(ctx, 25, 1);
-		if(nk_option_label(ctx, "Frame - wise", burned_subs->ocr_mode == FRAME)){
-			burned_subs->ocr_mode = FRAME;
+		if(nk_option_label(ctx, "Frame - wise", burned_subs->ocr_mode == FRAME_WISE)){
+			burned_subs->ocr_mode = FRAME_WISE;
 		}
 		nk_layout_row_dynamic(ctx, 25, 1);
-		if(nk_option_label(ctx, "Word - wise", burned_subs->ocr_mode == WORD)){
-			burned_subs->ocr_mode = WORD;
+		if(nk_option_label(ctx, "Word - wise", burned_subs->ocr_mode == WORD_WISE)){
+			burned_subs->ocr_mode = WORD_WISE;
 		}
 		nk_layout_row_dynamic(ctx, 25, 1);
-		if(nk_option_label(ctx, "Letter - wise", burned_subs->ocr_mode == LETTER)){
-			burned_subs->ocr_mode = LETTER;
+		if(nk_option_label(ctx, "Letter - wise", burned_subs->ocr_mode == LETTER_WISE)){
+			burned_subs->ocr_mode = LETTER_WISE;
 		}
 
 		if(burned_subs->is_italic)
 		{
-			burned_subs->ocr_mode = WORD;
+			burned_subs->ocr_mode = WORD_WISE;
 		}
 		nk_group_end(ctx);
 	}

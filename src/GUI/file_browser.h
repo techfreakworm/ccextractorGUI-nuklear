@@ -18,6 +18,9 @@
  * ===============================================================*/
 struct icons {
     struct nk_image desktop;
+#ifdef _WIN32
+	struct nk_image drives;
+#endif
     struct nk_image home;
     struct nk_image computer;
     struct nk_image directory;
@@ -87,6 +90,10 @@ struct file_browser {
     char home[MAX_PATH_LEN];
     char desktop[MAX_PATH_LEN];
     char directory[MAX_PATH_LEN];
+#ifdef _WIN32
+	char **drives;
+	int drives_num;
+#endif
 
     /* directory content */
     char **files;
@@ -126,6 +133,11 @@ media_init(struct media *media);
 
 void
 file_browser_reload_directory_content(struct file_browser *browser, const char *path);
+
+#if _WIN32
+void
+get_drives(struct file_browser *browser);
+#endif
 
 void
 file_browser_init(struct file_browser *browser, struct media *media);

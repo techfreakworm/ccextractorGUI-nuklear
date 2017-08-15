@@ -137,7 +137,7 @@ struct burned_subs_tab{
 	int subs_color_select;
 	char custom_hue[4];
 	int custom_hue_len;
-	enum {FRAME, WORD, LETTER} ocr_mode;
+	enum {FRAME_WISE, WORD_WISE, LETTER_WISE} ocr_mode;
 	char min_duration[4];
 	int min_duration_len;
 	int luminance_threshold;

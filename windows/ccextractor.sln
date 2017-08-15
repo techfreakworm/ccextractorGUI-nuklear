@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccextractor", "ccextractor.vcxproj", "{0F0063C4-BCBC-4379-A6D5-84A5669C940A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccextractorGUI", "ccextractorGUI.vcxproj", "{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,22 @@ Global
 		{0F0063C4-BCBC-4379-A6D5-84A5669C940A}.Release-Full|Win32.Build.0 = Release-Full|Win32
 		{0F0063C4-BCBC-4379-A6D5-84A5669C940A}.Release-Full|x64.ActiveCfg = Release-Full|x64
 		{0F0063C4-BCBC-4379-A6D5-84A5669C940A}.Release-Full|x64.Build.0 = Release-Full|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug|Win32.Build.0 = Debug|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug|x64.ActiveCfg = Debug|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug|x64.Build.0 = Debug|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug-Full|Win32.ActiveCfg = Debug|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug-Full|Win32.Build.0 = Debug|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug-Full|x64.ActiveCfg = Debug|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Debug-Full|x64.Build.0 = Debug|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release|Win32.ActiveCfg = Release|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release|Win32.Build.0 = Release|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release|x64.ActiveCfg = Release|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release|x64.Build.0 = Release|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release-Full|Win32.ActiveCfg = Release|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release-Full|Win32.Build.0 = Release|Win32
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release-Full|x64.ActiveCfg = Release|x64
+		{F28440E9-4E16-4A5D-B30B-2C4E760EFB73}.Release-Full|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

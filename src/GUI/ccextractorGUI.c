@@ -10,8 +10,10 @@
 #include <limits.h>
 #include <time.h>
 
-
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+
 
 #define PATH_LENGTH 66
 #define NAME_LENGTH 56
@@ -183,6 +185,11 @@ int main(void)
 	glfwSetWindowUserPointer(win, &ctx);
 	glfwSetDropCallback(win, drop_callback);
 
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to setup GLEW\n");
+		exit(1);
+	}
+
 	//GUI
 
 	struct file_browser browser;
@@ -192,10 +199,15 @@ int main(void)
 	ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
 	struct nk_font_atlas *font_atlas;
 	nk_glfw3_font_stash_begin(&font_atlas);
+#ifdef _WIN32
+	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "../../fonts/Roboto-Regular.ttf", 16, 0);
+	struct nk_font *droid_big = nk_font_atlas_add_from_file(font_atlas, "../../fonts/Roboto-Regular.ttf", 25, 0);
+	struct nk_font *droid_head = nk_font_atlas_add_from_file(font_atlas, "../../fonts/Roboto-Regular.ttf", 20, 0);
+#else
 	struct nk_font *droid = nk_font_atlas_add_from_file(font_atlas, "../fonts/Roboto-Regular.ttf", 16, 0);
 	struct nk_font *droid_big = nk_font_atlas_add_from_file(font_atlas, "../fonts/Roboto-Regular.ttf", 25, 0);
 	struct nk_font *droid_head = nk_font_atlas_add_from_file(font_atlas, "../fonts/Roboto-Regular.ttf", 20, 0);
-
+#endif
 	nk_glfw3_font_stash_end();
 	nk_style_set_font(ctx, &droid->handle);
 
@@ -231,6 +243,20 @@ int main(void)
 	static struct built_string command;
 
 	/* icons */
+
+#ifdef _WIN32
+	media.icons.home = icon_load("../../icon/home.png");
+	media.icons.directory = icon_load("../../icon/directory.png");
+	media.icons.computer = icon_load("../../icon/computer.png");
+	media.icons.drives = icon_load("../../icon/drive.png");
+	media.icons.desktop = icon_load("../../icon/desktop.png");
+	media.icons.default_file = icon_load("../../icon/default.png");
+	media.icons.text_file = icon_load("../../icon/text.png");
+	media.icons.music_file = icon_load("../../icon/music.png");
+	media.icons.font_file = icon_load("../../icon/font.png");
+	media.icons.img_file = icon_load("../../icon/img.png");
+	media.icons.movie_file = icon_load("../../icon/movie.png");
+#else
     media.icons.home = icon_load("../icon/home.png");
     media.icons.directory = icon_load("../icon/directory.png");
     media.icons.computer = icon_load("../icon/computer.png");
@@ -241,6 +267,8 @@ int main(void)
     media.icons.font_file =  icon_load("../icon/font.png");
     media.icons.img_file = icon_load("../icon/img.png");
     media.icons.movie_file = icon_load("../icon/movie.png");
+#endif
+
     media_init(&media);
 
     file_browser_init(&browser, &media);
@@ -641,82 +669,85 @@ int main(void)
 		nk_end(ctx);
 
 		glfwGetWindowSize(win, &screenWidth, &screenHeight);
-
-		if (show_activity_check && show_preview_check && show_terminal_check)
+		
+		if (!main_settings.scaleWindowForFileBrowser)
 		{
-			if (screenWidth != 930 || screenHeight != 650)
+			if (show_activity_check && show_preview_check && show_terminal_check)
 			{
-				glfwSetWindowSize(win, 930, 550);
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				if (screenWidth != 930 || screenHeight != 650)
+				{
+					glfwSetWindowSize(win, 930, 550);
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				}
+				activity(ctx, 530, 0, 400, 550, &main_settings);
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
+				preview(ctx, 530, 550, 400, 100, &main_settings);
 			}
-			activity(ctx, 530, 0, 400, 550, &main_settings);
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-			preview(ctx, 530, 550, 400, 100, &main_settings);
-		}
-		if (show_activity_check && show_preview_check && !show_terminal_check )
-		{
-			if (screenWidth != 930 || screenHeight != 650)
+			if (show_activity_check && show_preview_check && !show_terminal_check)
 			{
-				glfwSetWindowSize(win, 930, 650);
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				if (screenWidth != 930 || screenHeight != 650)
+				{
+					glfwSetWindowSize(win, 930, 650);
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				}
+				activity(ctx, 530, 0, 400, 650, &main_settings);
+				preview(ctx, 0, 550, 530, 100, &main_settings);
 			}
-			activity(ctx, 530, 0, 400, 650, &main_settings);
-			preview(ctx, 0, 550, 530, 100, &main_settings);
-		}
-		if (show_activity_check && !show_preview_check && show_terminal_check )
-		{
-			if (screenWidth != 930 || screenHeight != 650)
+			if (show_activity_check && !show_preview_check && show_terminal_check)
 			{
-				glfwSetWindowSize(win, 930, 650);
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				if (screenWidth != 930 || screenHeight != 650)
+				{
+					glfwSetWindowSize(win, 930, 650);
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				}
+				activity(ctx, 530, 0, 400, 650, &main_settings);
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
 			}
-			activity(ctx, 530, 0, 400, 650, &main_settings);
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-		}
-		if (show_terminal_check && show_preview_check && !show_activity_check )
-		{
-			if (screenWidth != 930 || screenHeight != 650)
+			if (show_terminal_check && show_preview_check && !show_activity_check)
 			{
-				glfwSetWindowSize(win, 930, 650);
-				glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				if (screenWidth != 930 || screenHeight != 650)
+				{
+					glfwSetWindowSize(win, 930, 650);
+					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
+				}
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
+				preview(ctx, 530, 0, 400, 650, &main_settings);
 			}
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-			preview(ctx, 530, 0, 400, 650, &main_settings);
-		}
-		if (show_activity_check && !show_preview_check && !show_terminal_check )
-		{
-			if (screenWidth != 930 || screenHeight == 650)
+			if (show_activity_check && !show_preview_check && !show_terminal_check)
 			{
-				glfwSetWindowSize(win, 930, 550);
-				glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
+				if (screenWidth != 930 || screenHeight == 650)
+				{
+					glfwSetWindowSize(win, 930, 550);
+					glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
+				}
+				activity(ctx, 530, 0, 400, 550, &main_settings);
 			}
-			activity(ctx, 530, 0, 400, 550, &main_settings);
-		}
-		if (show_terminal_check && !show_activity_check && !show_preview_check )
-		{
-			if (screenHeight != 650 || screenWidth == 930)
+			if (show_terminal_check && !show_activity_check && !show_preview_check)
 			{
-				glfwSetWindowSize(win, 530, 650);
-				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+				if (screenHeight != 650 || screenWidth == 930)
+				{
+					glfwSetWindowSize(win, 530, 650);
+					glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+				}
+				terminal(ctx, 0, 550, 530, 100, &command.term_string);
 			}
-			terminal(ctx, 0, 550, 530, 100, &command.term_string);
-		}
-		if (show_preview_check && !show_terminal_check && !show_activity_check )
-		{
-			if (screenHeight != 650 || screenWidth == 930)
+			if (show_preview_check && !show_terminal_check && !show_activity_check)
 			{
-				glfwSetWindowSize(win, 530, 650);
-				glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+				if (screenHeight != 650 || screenWidth == 930)
+				{
+					glfwSetWindowSize(win, 530, 650);
+					glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+				}
+				preview(ctx, 0, 550, 530, 100, &main_settings);
 			}
-			preview(ctx, 0, 550, 530, 100, &main_settings);
+			if (!show_preview_check && !show_terminal_check && !show_activity_check)
+			{
+				glfwSetWindowSize(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
+				glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow,
+					WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
+			}
 		}
-		if (!show_preview_check && !show_terminal_check && !show_activity_check )
-		{
-			glfwSetWindowSize(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
-			glfwSetWindowSizeLimits(win, WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow,
-									WIDTH_mainPanelAndWindow, HEIGHT_mainPanelandWindow);
-		}
-		if(main_settings.scaleWindowForFileBrowser)
+		else
 		{
 			glfwSetWindowSize(win, 930, 650);
 			glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
@@ -736,6 +767,9 @@ int main(void)
 	glDeleteTextures(1,(const GLuint*)&media.icons.home.handle.id);
     glDeleteTextures(1,(const GLuint*)&media.icons.directory.handle.id);
     glDeleteTextures(1,(const GLuint*)&media.icons.computer.handle.id);
+#ifdef _WIN32
+	glDeleteTextures(1, (const GLuint*)&media.icons.drives.handle.id);
+#endif
     glDeleteTextures(1,(const GLuint*)&media.icons.desktop.handle.id);
     glDeleteTextures(1,(const GLuint*)&media.icons.default_file.handle.id);
     glDeleteTextures(1,(const GLuint*)&media.icons.text_file.handle.id);
@@ -777,7 +811,11 @@ char* truncate_path_string(char *filePath)
 	//strcpy(filePath[i], paths[i]);
 	if (strlen(filePath) >= PATH_LENGTH - 1)
 	{
+#ifdef _WIN32
+		ptr_slash = strrchr(file_path, '\\');
+#else
 		ptr_slash = strrchr(file_path, '/');
+#endif
 		slash_length = strlen(ptr_slash);
 		if (slash_length >= NAME_LENGTH)
 		{

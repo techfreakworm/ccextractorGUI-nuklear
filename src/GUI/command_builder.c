@@ -352,13 +352,13 @@ void command_builder(struct built_string *command,
 		strcat(buffer, " -hardsubx -ocr_mode");
 		switch(burned_subs->ocr_mode)
 		{
-		case FRAME:
+		case FRAME_WISE:
 			strcat(buffer, " frame");
 			break;
-		case WORD:
+		case WORD_WISE:
 			strcat(buffer, " word");
 			break;
-		case LETTER:
+		case LETTER_WISE:
 			strcat(buffer, " letter");
 			break;
 		}
