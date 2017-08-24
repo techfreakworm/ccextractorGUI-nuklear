@@ -30,121 +30,121 @@ src/GUI
 ```
 ### File by File functions:
 	activity.c
-[nk_begin](#nk-begin)(ctx, "Activity", nk_rect(x, y, width, height), NK_WINDOW_TITLE|NK_WINDOW_BACKGROUND);
-[nk_end](#nk-end)(ctx);
-[nk_layout_row_dynamic](#nk-layout-row-dynamic)(ctx, 40, 1);
-[nk_label_wrap](#nk-label-wrap)(ctx, [main_settings](#struct-main-tab)->activity_string[i]);
-[nk_window_is_closed](#nk-window-is-closed)(ctx, "Activity");
+[nk_begin](#nk-begin)(ctx, "Activity", nk_rect(x, y, width, height), NK_WINDOW_TITLE|NK_WINDOW_BACKGROUND);  
+[nk_end](#nk-end)(ctx);  
+[nk_layout_row_dynamic](#nk-layout-row-dynamic)(ctx, 40, 1);  
+[nk_label_wrap](#nk-label-wrap)(ctx, [main_settings](#struct-main-tab)->activity_string[i]);  
+[nk_window_is_closed](#nk-window-is-closed)(ctx, "Activity");  
 
 	activity.h
 int [activity](#func-activity)(struct [nk_context](#nk-context) &ast;ctx, int x, int y, int width, int height, struct [main_tab](#struct-main-tab) &ast;main_settings);
 
 	ccextractorGUI.c
-[nk_menubar_begin](#nk-menubar-begin)(ctx);
-[nk_layout_row_begin](#nk-layout-row-begin)(ctx, NK_STATIC, 30, 3);
-[nk_layout_row_push](#nk-layout-row-push)(ctx, 80);
-[nk_menu_begin_label](#nk-menu-begin-label)(ctx, "Preferences", NK_TEXT_LEFT, [nk_vec2](#nk-vec2)(120, 200));
-[nk_menu_end](#nk-menu-end)(ctx);
-[nk_menubar_end](#nk-menubar-end)(ctx);
-[nk_layout_space_begin](#nk-layout-space-begin)(ctx, NK_STATIC, 15, 1);
-[nk_layout_space_end](#nk-layout-space-end)(ctx);
-[nk_style_push_vec2](#nk-style-push-vec2)(ctx, &ctx->style.window.spacing, [nk_vec2(](#nk-vec2)0, 0));
-[nk_style_push_float](#nk-style-push-float)(ctx, &ctx->style.button.rounding, 0);
-[nk_button_label](#nk-label-button)(ctx, names[i]);
-[nk_style_pop_float](#nk-style-pop-float)(ctx);
-[nk_group_begin](#nk-group-begin)(ctx, "Advanced Tabs", NK_WINDOW_NO_SCROLLBAR);
-[nk_group_end](#nk-group-end)(ctx);
-[nk_layout_row](#nk-layout-row)(ctx, NK_DYNAMIC, 20, 3, ratio_adv_mode);
-[nk_spacing](#nk-spacing)(ctx, 1);
-[nk_checkbox_label](#nk-checkbox-label)(ctx, "Advanced Mode", &advanced_mode_check);
-[nk_option_label](#nk-option-label)(ctx, "Extract from files below:", [main_settings](#struct-main-tab).port_or_files == FILES));
-[nk_selectable_label](#nk-selectable-label)(ctx, [truncate_path_string](#func-truncate-path-string)([main_settings](#struct-main-tab).filenames[i]), NK_TEXT_LEFT, &[main_settings](#struct-main-tab).is_file_selected[i]);
-[nk_combo](#nk-combo)(ctx, [main_settings](#struct-main-tab).port_type, 2, [main_settings](#struct-main-tab).port_select, 20, [nk_vec2](#nk-vec2)_(85,100));
-[nk_label](#nk-label)(ctx, "Drag and Drop files for extraction.", NK_TEXT_CENTERED);
-[nk_progress](#nk-progress)(ctx, &[main_settings](#struct-main-tab).progress_cursor, 101, nk_true);
+[nk_menubar_begin](#nk-menubar-begin)(ctx);  
+[nk_layout_row_begin](#nk-layout-row-begin)(ctx, NK_STATIC, 30, 3);  
+[nk_layout_row_push](#nk-layout-row-push)(ctx, 80);  
+[nk_menu_begin_label](#nk-menu-begin-label)(ctx, "Preferences", NK_TEXT_LEFT, [nk_vec2](#nk-vec2)(120, 200));  
+[nk_menu_end](#nk-menu-end)(ctx);  
+[nk_menubar_end](#nk-menubar-end)(ctx);  
+[nk_layout_space_begin](#nk-layout-space-begin)(ctx, NK_STATIC, 15, 1);  
+[nk_layout_space_end](#nk-layout-space-end)(ctx);  
+[nk_style_push_vec2](#nk-style-push-vec2)(ctx, &ctx->style.window.spacing, [nk_vec2(](#nk-vec2)0, 0));  
+[nk_style_push_float](#nk-style-push-float)(ctx, &ctx->style.button.rounding, 0);  
+[nk_button_label](#nk-label-button)(ctx, names[i]);  
+[nk_style_pop_float](#nk-style-pop-float)(ctx);  
+[nk_group_begin](#nk-group-begin)(ctx, "Advanced Tabs", NK_WINDOW_NO_SCROLLBAR);  
+[nk_group_end](#nk-group-end)(ctx);  
+[nk_layout_row](#nk-layout-row)(ctx, NK_DYNAMIC, 20, 3, ratio_adv_mode);  
+[nk_spacing](#nk-spacing)(ctx, 1);  
+[nk_checkbox_label](#nk-checkbox-label)(ctx, "Advanced Mode", &advanced_mode_check);  
+[nk_option_label](#nk-option-label)(ctx, "Extract from files below:", [main_settings](#struct-main-tab).port_or_files == FILES));  
+[nk_selectable_label](#nk-selectable-label)(ctx, [truncate_path_string](#func-truncate-path-string)([main_settings](#struct-main-tab).filenames[i]), NK_TEXT_LEFT, &[main_settings](#struct-main-tab).is_file_selected[i]);  
+[nk_combo](#nk-combo)(ctx, [main_settings](#struct-main-tab).port_type, 2, [main_settings](#struct-main-tab).port_select, 20, [nk_vec2](#nk-vec2)_(85,100));  
+[nk_label](#nk-label)(ctx, "Drag and Drop files for extraction.", NK_TEXT_CENTERED  
+[nk_progress](#nk-progress)(ctx, &[main_settings](#struct-main-tab).progress_cursor, 101, nk_true);  
 
     ccextractorGUI.h
- void [setup_main_settings](#func-setup-main-settings)(struct main_tab &ast;main_settings);
-char&ast; [truncate_path_string](#func-truncate-path-string)(char &ast;filePath);
-void [remove_path_entry](#func-remove-path-entry)(struct [main_tab](#struct-main-tab) &ast;main_settings, int indexToRemove);
+ void [setup_main_settings](#func-setup-main-settings)(struct main_tab &ast;main_settings);  
+char&ast; [truncate_path_string](#func-truncate-path-string)(char &ast;filePath);  
+void [remove_path_entry](#func-remove-path-entry)(struct [main_tab](#struct-main-tab) &ast;main_settings, int indexToRemove);  
 
     ccx_cli_thread.c || ccx_cli_thread.h
-void&ast; [read_activity_data](#func-read-activity-data)(void &ast;read_args);
-void&ast; [read_data_from_thread](#func-read-data-from-thread)(void&ast; read_args);
-void&ast; [extract_thread](#func-extract-thread)(void&ast; extract_args);
-void&ast; [feed_files_for_extraction](#func-feed-files-for-extraction)(void&ast; file_args);
-void [setup_and_create_thread](#fun-setup-and-create-thread)(struct [main_tab](#struct-main-tab) &ast;main_settings, struct [built_string](#struct-built-string) &ast;command);
-void&asst; [find_hd_homerun_devices](#func-hd-homerun-devices)(void &ast;args);
-void&ast; [setup_hd_homerun_device](#func-setup-hd-homerun-device)(void &ast;args);
+void&ast; [read_activity_data](#func-read-activity-data)(void &ast;read_args);  
+void&ast; [read_data_from_thread](#func-read-data-from-thread)(void&ast; read_args);  
+void&ast; [extract_thread](#func-extract-thread)(void&ast; extract_args);  
+void&ast; [feed_files_for_extraction](#func-feed-files-for-extraction)(void&ast; file_args);  
+void [setup_and_create_thread](#fun-setup-and-create-thread)(struct [main_tab](#struct-main-tab) &ast;main_settings, struct [built_string](#struct-built-string) &ast;command);  
+void&asst; [find_hd_homerun_devices](#func-hd-homerun-devices)(void &ast;args);  
+void&ast; [setup_hd_homerun_device](#func-setup-hd-homerun-device)(void &ast;args);  
 
     command_builder.c || command_builder.h
-void [command_builder](#func-command-builder)(struct [built_string](#struct-built-string) &ast;command,
-		struct [main_tab](#struct-main-tab) &ast;main_settings,
-		struct [network_popup](#struct-network-popup) &ast;network_settings,
-		struct [input_tab](#struct-input-tab) &ast;input,
-		struct [advanced_input_tab](#struct-advanced-input-tab) &ast;advanced_input,
-		struct [output_tab](#struct-output-tab) &ast;output,
-		struct [decoders_tab](#struct-output-tab) &ast;decoders,
-		struct [credits_tab](#struct-output-tab) &ast;credits,
-		struct [debug_tab](#struct-debug-tab) &ast;debug,
-		struct [burned_subs_tab](#struct-debug-tab) &ast;burned_subs);
+void [command_builder](#func-command-builder)(struct [built_string](#struct-built-string) &ast;command,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [main_tab](#struct-main-tab) &ast;main_settings,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [network_popup](#struct-network-popup) &ast;network_settings,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [input_tab](#struct-input-tab) &ast;input,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [advanced_input_tab](#struct-advanced-input-tab) &ast;advanced_input,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [output_tab](#struct-output-tab) &ast;output,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [decoders_tab](#struct-output-tab) &ast;decoders,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [credits_tab](#struct-output-tab) &ast;credits,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [debug_tab](#struct-debug-tab) &ast;debug,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [burned_subs_tab](#struct-debug-tab) &ast;burned_subs);  
 		
     file_browser.c || file_browser.h
-void [die](#func-die)(const char &ast;fmt, ...);
-char&ast; [file_load](#func-file-load)(const char&ast; path, size_t&ast; siz);
-char&ast; [str_duplicate](#func-str-duplicate)(const char &ast;src);
-void [dir_free_list](#func-dir-free-list)(char &ast;&ast;list, size_t size);
-char&ast;&ast; [dir_list](#func-dir-list)(const char &ast;dir, int return_subdirs, size_t &ast;count);
-struct file_group [FILE_GROUP](#func-file-group)(enum file_groups group, const char &ast;name, struct nk_image &ast;icon);
-struct file [FILE_DEF](#func-file-def)(enum file_types type, const char &ast;suffix, enum file_groups group);
-struct nk_image&ast; [media_icon_for_file](#func-media-icon-for-file)(struct media &ast;media, const char &ast;file);
-void [media_init](#func-media-init)(struct media &ast;media);
-void [file_browser_reload_directory_content](#func-file-browser-reload-directory-content)(struct file_browser &ast;browser, const char &ast;path);
-void [get_drives](#func-get-drives)(struct file_browser &ast;browser);
-void [file_browser_init](#func-file-browser-init)(struct file_browser &ast;browser, struct media &ast;media);
-void [file_browser_free](#func-file-browser-free)(struct file_browser &ast;browser);
-int [file_browser_run](#func-file-browser-run)(struct file_browser &ast;browser, struct [nk_context](#nk-context) &ast;ctx, struct [main_tab](#struct-main-tab) &ast;main_settings, struct [output_tab](#struct-output-tab) &ast;output, struct [debug_tab](#struct-debug-tab) &ast;debug, struct [hd_homerun_tab](#struct-hd-homerun-tab) &ast;hd_homerun);
+void [die](#func-die)(const char &ast;fmt, ...);  
+char&ast; [file_load](#func-file-load)(const char&ast; path, size_t&ast; siz);  
+char&ast; [str_duplicate](#func-str-duplicate)(const char &ast;src);  
+void [dir_free_list](#func-dir-free-list)(char &ast;&ast;list, size_t size);  
+char&ast;&ast; [dir_list](#func-dir-list)(const char &ast;dir, int return_subdirs, size_t &ast;count);  
+struct file_group [FILE_GROUP](#func-file-group)(enum file_groups group, const char &ast;name, struct nk_image &ast;icon);  
+struct file [FILE_DEF](#func-file-def)(enum file_types type, const char &ast;suffix, enum file_groups group);  
+struct nk_image&ast; [media_icon_for_file](#func-media-icon-for-file)(struct media &ast;media, const char &ast;file);  
+void [media_init](#func-media-init)(struct media &ast;media);  
+void [file_browser_reload_directory_content](#func-file-browser-reload-directory-content)(struct file_browser &ast;browser, const char &ast;path);  
+void [get_drives](#func-get-drives)(struct file_browser &ast;browser);  
+void [file_browser_init](#func-file-browser-init)(struct file_browser &ast;browser, struct media &ast;media);  
+void [file_browser_free](#func-file-browser-free)(struct file_browser &ast;browser);  
+int [file_browser_run](#func-file-browser-run)(struct file_browser &ast;browser, struct [nk_context](#nk-context) &ast;ctx, struct [main_tab](#struct-main-tab) &ast;main_settings, struct [output_tab](#struct-output-tab) &ast;output, struct [debug_tab](#struct-debug-tab) &ast;debug, struct [hd_homerun_tab](#struct-hd-homerun-tab) &ast;hd_homerun);  
 
     popups.c || popups.h
-void [draw_network_popup](#func-draw-network-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_preferences_network, struct [network_popup](#struct-network-popup) &ast;network_settings);
-void [draw_getting_started_popup](#func-draw-getting-started-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_getting_started);
-void [draw_about_ccx_popup](#func-draw-about-ccx-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_about_ccx, struct nk_user_font &ast;droid_big, struct nk_user_font &ast;droid_head);
-void [draw_progress_details_popup](#func-draw-progress-details-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_progress_details, struct [main_tab](#struct-main-tab) &ast;main_settings);
-void [draw_color_popup](#func-draw-color-popup)(struct [nk_context](#nk-context) &ast;ctx, struct [output_tab](#struct-output-tab) &ast;output);
-void [draw_thread_popup](#fun-draw-thread-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_thread_popup);
-void [setup_network_settings](#func-setup-network-settings)(struct [network_popup](#struct-network-popup) &ast;network_settings);
+void [draw_network_popup](#func-draw-network-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_preferences_network, struct [network_popup](#struct-network-popup) &ast;network_settings);  
+void [draw_getting_started_popup](#func-draw-getting-started-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_getting_started);  
+void [draw_about_ccx_popup](#func-draw-about-ccx-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_about_ccx, struct nk_user_font &ast;droid_big, struct nk_user_font &ast;droid_head);  
+void [draw_progress_details_popup](#func-draw-progress-details-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_progress_details, struct [main_tab](#struct-main-tab) &ast;main_settings);  
+void [draw_color_popup](#func-draw-color-popup)(struct [nk_context](#nk-context) &ast;ctx, struct [output_tab](#struct-output-tab) &ast;output);  
+void [draw_thread_popup](#fun-draw-thread-popup)(struct [nk_context](#nk-context) &ast;ctx, int &ast;show_thread_popup);  
+void [setup_network_settings](#func-setup-network-settings)(struct [network_popup](#struct-network-popup) &ast;network_settings);  
 
     preview.c || preview.h
-int [preview](#func-preview)(struct [nk_context](#nk-context) &ast;ctx, int x, int y, int width, int height, struct [main_tab](#struct-main-tab) &ast;main_settings);
+int [preview](#func-preview)(struct [nk_context](#nk-context) &ast;ctx, int x, int y, int width, int height, struct [main_tab](#struct-main-tab) &ast;main_settings);  
 
     save_load_data.c || save_load_data.h
-void [load_data](#func-load-data)(FILE *file,
-		struct [main_tab](#struct-main-tab) &ast;main_settings,
-		struct [input_tab](#struct-input-tab) &ast;input,
-		struct [advanced_input_tab](#struct-advanced-input-tab) &ast;advanced_input,
-		struct [output_tab](#struct-output-tab) &ast;output,
-		struct [decoders_tab](#struct-decoders-tab) &ast;decoders,
-		struct [credits_tab](#struct-credits-tab) &ast;credits,
-		struct [debug_tab](#struct-debug-tab) &ast;debug,
-		struct [hd_homerun_tab](#struct-hd-homerun-tab) &ast;hd_homerun,
-		struct [burned_subs_tab](#struct-burned-subs-tab) &ast;burned_subs);
+void [load_data](#func-load-data)(FILE *file,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [main_tab](#struct-main-tab) &ast;main_settings,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [input_tab](#struct-input-tab) &ast;input,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [advanced_input_tab](#struct-advanced-input-tab) &ast;advanced_input,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [output_tab](#struct-output-tab) &ast;output,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [decoders_tab](#struct-decoders-tab) &ast;decoders,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [credits_tab](#struct-credits-tab) &ast;credits,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [debug_tab](#struct-debug-tab) &ast;debug,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [hd_homerun_tab](#struct-hd-homerun-tab) &ast;hd_homerun,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [burned_subs_tab](#struct-burned-subs-tab) &ast;burned_subs);  
 
-void [save_data](#func-save-data)(FILE *file,
-		struct [main_tab](#struct-main-tab) &ast;main_settings,
-		struct [input_tab](#struct-input-tab) &ast;input,
-		struct [advanced_input_tab](#struct-advanced-input-tab) &ast;advanced_input,
-		struct [output_tab](#struct-output-tab) &ast;output,
-		struct [decoders_tab](#struct-decoders-tab) &ast;decoders,
-		struct [credits_tab](#struct-credits-tab) &ast;credits,
-		struct [debug_tab](#struct-debug-tab) &ast;debug,
-		struct [hd_homerun_tab](#struct-hd-homerun-tab) &ast;hd_homerun,
-		struct [burned_subs_tab](#struct-burned-subs-tab) &ast;burned_subs);
+void [save_data](#func-save-data)(FILE *file,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [main_tab](#struct-main-tab) &ast;main_settings,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [input_tab](#struct-input-tab) &ast;input,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [advanced_input_tab](#struct-advanced-input-tab) &ast;advanced_input,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [output_tab](#struct-output-tab) &ast;output,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [decoders_tab](#struct-decoders-tab) &ast;decoders,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [credits_tab](#struct-credits-tab) &ast;credits,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [debug_tab](#struct-debug-tab) &ast;debug,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [hd_homerun_tab](#struct-hd-homerun-tab) &ast;hd_homerun,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct [burned_subs_tab](#struct-burned-subs-tab) &ast;burned_subs);  
 
-void [write_credits](#func-write-credits)(FILE* file, struct [credits_tab](#struct-credits-tab) &ast;credits);
-void [read_credits](#func-read-credits)(FILE* file, struct [credits_tab](#struct-credits-tab) &ast;credits);
+void [write_credits](#func-write-credits)(FILE* file, struct [credits_tab](#struct-credits-tab) &ast;credits);  
+void [read_credits](#func-read-credits)(FILE* file, struct [credits_tab](#struct-credits-tab) &ast;credits);  
 
     terminal.c
-int [terminal](#func-terminal)(struct [nk_context](#nk-context) &ast;ctx, int x, int y, int width, int height, char &ast;command);
+int [terminal](#func-terminal)(struct [nk_context](#nk-context) &ast;ctx, int x, int y, int width, int height, char &ast;command);  
 
 ### About CCExtractor specific functions
 #### int <a id="func-activity">activity</a>(struct nk_context &ast;ctx, int x, int y, int width, int height, struct [main_tab](#struct-main-tab) &ast;main_settings);
