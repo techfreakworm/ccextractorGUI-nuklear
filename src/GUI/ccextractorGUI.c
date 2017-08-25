@@ -90,19 +90,22 @@ void drop_callback(GLFWwindow* window, int count, const char **paths)
 	
 	printf("Number of selected paths:%d\n", count);
 
-	if(main_settings.filename_count == 0)
-		main_settings.filenames = malloc(count * sizeof(*main_settings.filenames));
+	if(main_settings.filename_count == 0 && main_settings.filenames == NULL)
+		main_settings.filenames = (char**)calloc(count + 1, sizeof(char*));
 	else
-		main_settings.filenames = realloc(main_settings.filenames, (main_settings.filename_count + count) * sizeof(*main_settings.filenames));
+		main_settings.filenames = (char**)realloc(main_settings.filenames, (main_settings.filename_count + count + 1) * sizeof(char*));
 	for (i = 0; i < count; i++)
 	{
 		printf("\n%d", main_settings.filename_count);
-		
-		main_settings.filenames[main_settings.filename_count] = strdup("\"");
+
+        main_settings.filenames[main_settings.filename_count] = (char*)calloc((strlen(paths[i])+5), sizeof(char));
+		main_settings.filenames[main_settings.filename_count][0] = '\"';
 		strcat(main_settings.filenames[main_settings.filename_count], paths[i]);
 		strcat(main_settings.filenames[main_settings.filename_count], "\"");
+        puts(main_settings.filenames[main_settings.filename_count]);
 		main_settings.filename_count++;
 	}
+    main_settings.filenames[main_settings.filename_count] = NULL;
 
 }
 
@@ -779,6 +782,7 @@ int main(void)
     glDeleteTextures(1,(const GLuint*)&media.icons.movie_file.handle.id);
 
 	file_browser_free(&browser);
+	//free(main_settings.filenames);
 
 	nk_glfw3_shutdown();
 	glfwTerminate();

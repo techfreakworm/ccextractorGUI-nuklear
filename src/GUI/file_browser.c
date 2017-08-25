@@ -15,6 +15,7 @@
 #include <unistd.h>
 #endif
 #include <GL/glew.h>
+#include <string.h>
 
 #ifndef NK_IMPLEMENTATION
 #include "nuklear_lib/nuklear.h"
@@ -491,14 +492,16 @@ file_browser_run(struct file_browser *browser,
 							if (main_settings->is_file_browser_active)
 							{
 								if (main_settings->filename_count == 0)								
-									main_settings->filenames = malloc(sizeof(*main_settings->filenames));									
+									main_settings->filenames = (char**)calloc(2, sizeof(char*));
 								else
-									main_settings->filenames = realloc(main_settings->filenames, (main_settings->filename_count + 1) * sizeof(*main_settings->filenames));
+									main_settings->filenames = (char**)realloc(main_settings->filenames, (main_settings->filename_count + 2) * sizeof(char*));
 
-								main_settings->filenames[main_settings->filename_count] = strdup("\"");
+                                main_settings->filenames[main_settings->filename_count] = (char*)calloc((strlen(browser->file) + 5), sizeof(char));
+								main_settings->filenames[main_settings->filename_count][0] = '\"';
 								strcat(main_settings->filenames[main_settings->filename_count], browser->file);
 								strcat(main_settings->filenames[main_settings->filename_count], "\"");
 								main_settings->filename_count++;
+                                main_settings->filenames[main_settings->filename_count] = NULL;
 								isFileAdded = nk_true;
 								main_settings->is_file_browser_active = nk_false;
 								break;
