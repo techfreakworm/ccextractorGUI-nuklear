@@ -879,7 +879,7 @@ void remove_path_entry(struct main_tab *main_settings, int indexToRemove)
 	//	printf("%d ", (*array)[i]);
 	//printf("\n");
 
-		char** temp = malloc((main_settings->filename_count - 1) * sizeof(char *)); // allocate an array with a size 1 less than the current one
+		char** temp = (char**)calloc(main_settings->filename_count, sizeof(char *)); // allocate an array with a size 1 less than the current one
 
 		memmove(
 			temp,
@@ -894,6 +894,7 @@ void remove_path_entry(struct main_tab *main_settings, int indexToRemove)
 		free(main_settings->filenames);
 		main_settings->filenames = temp;
 		main_settings->filename_count--;
+        main_settings->filenames[main_settings->filename_count] = NULL;
 	
 
 }
