@@ -594,7 +594,7 @@ int main(void)
 			nk_layout_space_begin(ctx, NK_STATIC, 10, 1);
 			nk_layout_space_end(ctx);
 
-			//Extraction Information
+			//Extraction Info`rmation
 			nk_layout_row_dynamic(ctx, 10, 1);
 			nk_text(ctx, "Extraction Info:", 16, NK_TEXT_CENTERED);
 
@@ -606,16 +606,18 @@ int main(void)
 			{
 				if (main_settings.filename_count != 0)
 				{
-					int i = 0;
-					static int filenames[100];
 					nk_layout_row_static(ctx, 18, 380, 1);
-					if (modifiedParams == 0)
-					{
-						nk_label(ctx, "Input Type: Auto", NK_TEXT_LEFT);
-						nk_label(ctx, "Output Type: Default(.srt)", NK_TEXT_LEFT);
-						nk_label(ctx, "Output Path: Default", NK_TEXT_LEFT);
-						nk_label(ctx, "Hardsubs Extraction: No", NK_TEXT_LEFT);
-					}
+                    nk_label(ctx, concat("Input type: ", input.type[input.type_select]), NK_TEXT_LEFT);
+                    nk_label(ctx, concat("Output type: ", output.type[output.type_select]), NK_TEXT_LEFT);
+                    if(output.is_filename)
+                        nk_label(ctx, concat("Output path: ", output.filename), NK_TEXT_LEFT);
+                    else
+                        nk_label(ctx, "Output path: Default", NK_TEXT_LEFT);
+                    if(burned_subs.is_burned_subs)
+                        nk_label(ctx, "Hardsubtitles extraction: Yes", NK_TEXT_LEFT);
+                    else
+                        nk_label(ctx, "Hardsubtitles extraction: No", NK_TEXT_LEFT);
+
 				
 				}
 				nk_group_end(ctx);
@@ -915,4 +917,13 @@ icon_load(const char *filename)
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
     return nk_image_id((int)tex);
+}
+
+
+char* concat(char* string1, char *string2)
+{
+    static char prefix[300], suffix[300];
+    strcpy(prefix, string1);
+    strcpy(suffix, string2);
+    return strcat(prefix, suffix);
 }

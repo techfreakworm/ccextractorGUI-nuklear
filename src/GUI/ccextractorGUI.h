@@ -30,5 +30,6 @@ struct main_tab
 void setup_main_settings(struct main_tab *main_settings);
 char* truncate_path_string(char *filePath);
 void remove_path_entry(struct main_tab *main_settings, int indexToRemove);
+char* concat(char* string1, char *string2);
 
 #endif //!CCEXTRACTORGUI_H
