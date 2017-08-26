@@ -282,11 +282,13 @@ get_drives(struct file_browser *browser)
 
 
 	browser->drives_num = drive_num;
-	browser->drives = malloc(drive_num * sizeof(char*));
+	browser->drives = (char**)calloc(drive_num + 1, sizeof(char*));
 	for (int i = 0; i < drive_num; i++)
 	{
+		browser->drives[i] = (char*)calloc(strlen(drive_list[i]), sizeof(char));
 		browser->drives[i] = strdup(drive_list[i]);
 	}
+	browser->drives[browser->drives_num] = NULL;
 
 	for (int i = 0; i< drive_num; i++)
 		puts(browser->drives[i]);
@@ -331,7 +333,7 @@ file_browser_init(struct file_browser *browser, struct media *media)
 #ifdef _WIN32
 			strcpy(browser->desktop + l, "Desktop\\");
 #else
-			strcpy(browser->desktop + l, "desktop/");
+			strcpy(browser->desktop + l, "Desktop/");
 #endif
 		}
 		browser->files = dir_list(browser->directory, 0, &browser->file_count);
@@ -379,15 +381,29 @@ file_browser_run(struct file_browser *browser,
 			char *begin = d + 1;
 			nk_layout_row_dynamic(ctx, 25, 6);
 			while (*d++) {
-				if (*d == '/') {
+#ifdef _WIN32
+				if (*d == '\\')
+#else
+				if (*d == '/')
+#endif
+				{
 					*d = '\0';
 					if (nk_button_label(ctx, begin)) {
-						*d++ = '/'; *d = '\0';
+#ifdef _WIN32
+						*d++ = '\\';
+#else
+						*d++ = '/';
+#endif
+						*d = '\0';
 						file_browser_reload_directory_content(browser, browser->directory);
 
 						break;
 					}
+#ifdef _WIN32
+					*d = '\\';
+#else
 					*d = '/';
+#endif
 					begin = d + 1;
 				}
 			}
