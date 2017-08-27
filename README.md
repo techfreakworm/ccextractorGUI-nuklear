@@ -1,30 +1,3 @@
-#FOR GUI
-## Note: Currently the GUI is fully functional and up to date with proposal for Macintosh and Linux only. Windows build will be ready as stated in GSoC proposal.
-
-
-### Install Dependencies
-1. Insall [GLEW](http://glew.sourceforge.net/) from source.
-2. Instll [GLFW](http://www.glfw.org/) from source.
-3. Depending upon your distribution you may or may not require X-Windowing-Server-devel packages. Most commonly required packages are: Xinerama, Xcursor, Xrandr, Xxf86vm which would be available in package manager repositories. 
-
-
-### To compile
-#### Navigate to `src/GUI` directory and run below command in terminal
-    gcc *.c -DUNIX -lglfw3 -lX11 -lXinerama -lXcursor -lXi -lXrandr -lXxf86vm -lGLEW -lGL -lGLU -lm -ldl -lpthread
-
-    additional -D flag to check library availability for burned subs extraction: -DENABLE_OCR
-
-## OR
-
-	1. Navigate to linux directory.
-	2. ./autogen.sh
-	3. ./configure --with-gui
-	4. make
-
-	Note: autoconf scripts add required -D flags automatically according to the environment and installed libraries.
-	If you want to check the GUI working under different situations than detected by the scripts. Use the manual compilation command given above.
-
-
 ![logo](https://avatars3.githubusercontent.com/u/7253637?v=3&s=100)
  
 # CCExtractor
@@ -222,6 +195,39 @@ Open the windows/ccextractor.sln file with Visual Studio (2015 at least), and bu
 
     cd ccextractor/package_creators
     ./rpm.sh
+
+
+## <a id="compile-ccx-gui">Building with GUI</a>
+Note: There are no run-time dependencies for GLFW and GLEW (if linked statically), libraries are required for developers or testers to build project. 
+
+### Install Dependencies
+#### Linux
+1. Insall [GLEW](http://glew.sourceforge.net/) from source or package manager (Latest required).
+2. Instll [GLFW](http://www.glfw.org/) from source or package manafer (Latest required).
+3. Depending upon your distribution you may or may not require X-Windowing-Server-devel packages. Most commonly required packages are: Xinerama, Xcursor, Xrandr, Xxf86vm which would be available in package manager repositories. 
+
+#### Mac
+    brew install glfw
+    brew install glew
+
+#### Windows
+No dependencies are required to build GUI on windows. Everything is provided
+
+
+### To compile
+#### Linux or Mac
+1. Navigate to `linux` (for Linux OS) or `mac` (for macOS) directory.
+2. `./autogen.sh`
+3. `./configure --with-gui`
+4. `make`
+
+Note: autoconf scripts add required -D flags automatically according to the environment and installed libraries.
+
+#### Windows
+1. Navigate to `windows` directory.
+2. Open `ccextractor.sln`
+3. Build the solution using `Ctrl+Shift+B`.
+
 
 ## Support
 
