@@ -683,9 +683,9 @@ int main(void)
 					glfwSetWindowSize(win, 930, 550);
 					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 				}
-				activity(ctx, 530, 0, 400, 550, &main_settings);
+				preview(ctx, 530, 0, 400, 550, &main_settings);
 				terminal(ctx, 0, 550, 530, 100, &command.term_string);
-				preview(ctx, 530, 550, 400, 100, &main_settings);
+				activity(ctx, 530, 550, 400, 100, &main_settings);
 			}
 			if (show_activity_check && show_preview_check && !show_terminal_check)
 			{
@@ -694,8 +694,8 @@ int main(void)
 					glfwSetWindowSize(win, 930, 650);
 					glfwSetWindowSizeLimits(win, 930, 650, 930, 650);
 				}
-				activity(ctx, 530, 0, 400, 650, &main_settings);
-				preview(ctx, 0, 550, 530, 100, &main_settings);
+				preview(ctx, 530, 0, 400, 650, &main_settings);
+				activity(ctx, 0, 550, 530, 100, &main_settings);
 			}
 			if (show_activity_check && !show_preview_check && show_terminal_check)
 			{
@@ -739,10 +739,10 @@ int main(void)
 			{
 				if (screenHeight != 650 || screenWidth == 930)
 				{
-					glfwSetWindowSize(win, 530, 650);
-					glfwSetWindowSizeLimits(win, 530, 650, 530, 650);
+					glfwSetWindowSize(win, 930, 550);
+					glfwSetWindowSizeLimits(win, 930, 550, 930, 550);
 				}
-				preview(ctx, 0, 550, 530, 100, &main_settings);
+				preview(ctx, 530, 0, 400, 550, &main_settings);
 			}
 			if (!show_preview_check && !show_terminal_check && !show_activity_check)
 			{
