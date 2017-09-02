@@ -8,6 +8,8 @@
 
 void setup_network_settings(struct network_popup *network_settings)
 {
+	network_settings->show_network_settings = nk_false;
+	network_settings->save_network_settings = nk_false;
 	strcpy(network_settings->udp_ipv4, "None");
 	network_settings->udp_ipv4_len = strlen(network_settings->udp_ipv4);
 	strcpy(network_settings->tcp_pass, "None");
@@ -20,7 +22,7 @@ void setup_network_settings(struct network_popup *network_settings)
 	network_settings->send_host_len = strlen(network_settings->send_host);
 }
 
-void draw_network_popup(struct nk_context *ctx, int *show_preferences_network, struct network_popup *network_settings)
+void draw_network_popup(struct nk_context *ctx, struct network_popup *network_settings)
 {
 	const float save_ok_ratio[] = { 0.8f,0.1f,0.1f };
 	const float udp_tcp_ratio[] = { 0.45f,0.1f,0.45f };
@@ -85,18 +87,20 @@ void draw_network_popup(struct nk_context *ctx, int *show_preferences_network, s
 		nk_layout_row(ctx, NK_DYNAMIC, 27, 3, save_ok_ratio);
 		nk_spacing(ctx, 1);
 		if (nk_button_label(ctx, "Save")) {
-			*show_preferences_network = nk_false;
+			network_settings->save_network_settings = nk_true;
+			network_settings->show_network_settings = nk_false;
 			nk_popup_close(ctx);
 		}
 		if (nk_button_label(ctx, "OK")) {
-			*show_preferences_network = nk_false;
+			network_settings->save_network_settings = nk_false;
+			network_settings->show_network_settings = nk_false;
 			nk_popup_close(ctx);
 		}
 
 		nk_popup_end(ctx);
 	}
 	else
-		*show_preferences_network = nk_false;
+		network_settings->show_network_settings = nk_false;
 }
 
 void draw_getting_started_popup(struct nk_context *ctx, int *show_getting_started)

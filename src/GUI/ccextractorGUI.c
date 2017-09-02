@@ -282,7 +282,7 @@ int main(void)
     if(loadFile != NULL)
     {
     	printf("File found and reading it!\n");
-    	load_data(loadFile, &main_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &hd_homerun, &burned_subs);
+    	load_data(loadFile, &main_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &hd_homerun, &burned_subs, &network_settings);
     	fclose(loadFile);
     }
 
@@ -293,7 +293,7 @@ int main(void)
 		{
 			FILE *saveFile;
 			saveFile = fopen("ccxGUI.ini", "w");
-			save_data(saveFile, &main_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &hd_homerun, &burned_subs);
+			save_data(saveFile, &main_settings, &input, &advanced_input, &output, &decoders, &credits, &debug, &hd_homerun, &burned_subs, &network_settings);
 			fclose(saveFile);
 			break;
 		}
@@ -306,7 +306,6 @@ int main(void)
 		static int show_progress_details = nk_false;
 		static int show_about_ccx = nk_false;
 		static int show_getting_started = nk_false;
-		static int show_preferences_network = nk_false;
 
 
 
@@ -338,7 +337,7 @@ int main(void)
 
 				}
 				if (nk_menu_item_label(ctx, "Network Settings", NK_TEXT_LEFT))
-					show_preferences_network = nk_true;
+					network_settings.show_network_settings = nk_true;
 				nk_menu_end(ctx);
 			}
 			nk_layout_row_push(ctx, 70);
@@ -361,8 +360,8 @@ int main(void)
 			}
 			
 		//Network Settings
-			if (show_preferences_network)
-				draw_network_popup(ctx, &show_preferences_network, &network_settings);
+			if (network_settings.show_network_settings)
+				draw_network_popup(ctx, &network_settings);
 
 		//About CCExtractor Popup
 			if (show_about_ccx)

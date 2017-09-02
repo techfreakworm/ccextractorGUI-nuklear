@@ -1,6 +1,7 @@
 #include "save_load_data.h"
 #include "ccextractorGUI.h"
 #include "tabs.h"
+#include "popups.h"
 
 void load_data(FILE *file,
 		struct main_tab* main_settings,
@@ -11,7 +12,8 @@ void load_data(FILE *file,
 		struct credits_tab* credits,
 		struct debug_tab* debug,
 		struct hd_homerun_tab* hd_homerun,
-		struct burned_subs_tab* burned_subs)
+		struct burned_subs_tab* burned_subs,
+		struct network_popup* network_settings)
 {
 	int null_int,r ,g, b;
 	char null_char[260];
@@ -267,6 +269,31 @@ void load_data(FILE *file,
 	fscanf(file, "confidence_threshold:%d\n", &burned_subs->confidence_threshold);
 	fscanf(file, "is_italic:%d\n", &burned_subs->is_italic);
 
+	//Read Network Settings data
+	fscanf(file, "udp_ipv4_len:%d\n", &network_settings->udp_ipv4_len);
+	if (network_settings->udp_ipv4_len > 0)
+		fscanf(file, "udp_ipv4:%[^\n]\n", network_settings->udp_ipv4);
+	else
+		fscanf(file, "udp_ipv4:%[^\n]\n", null_char);
+	fscanf(file, "tcp_pass_len:%d\n", &network_settings->tcp_pass_len);
+	if (network_settings->tcp_pass_len > 0)
+		fscanf(file, "tcp_pass:%[^\n]\n", network_settings->tcp_pass);
+	else
+		fscanf(file, "tcp_pass:%[^\n]\n", null_char);
+	fscanf(file, "tcp_desc_len:%d\n", &network_settings->tcp_desc_len);
+	if (network_settings->tcp_desc_len > 0)
+		fscanf(file, "tcp_desc:%[^\n]\n", network_settings->tcp_desc);
+	else
+		fscanf(file, "tcp_desc:%[^\n]\n", null_char);
+	fscanf(file, "send_port_len:%d\n", &network_settings->send_port_len);
+	if (network_settings->send_port_len > 0)
+		fscanf(file, "send_port:%[^\n]\n", network_settings->send_port);
+	else
+		fscanf(file, "send_port:%[^\n]\n", null_char);
+	fscanf(file, "send_host_len:%d\n", &network_settings->send_host_len);
+	if(network_settings->send_host_len > 0)
+		fscanf(file, "send_host:%[^\n]\n", network_settings->send_host);
+	fscanf(file, "send_host:%[^\n]\n", null_char);
 }
 
 void save_data(FILE *file,
@@ -278,7 +305,8 @@ void save_data(FILE *file,
 		struct credits_tab* credits,
 		struct debug_tab* debug,
 		struct hd_homerun_tab* hd_homerun,
-		struct burned_subs_tab* burned_subs)
+		struct burned_subs_tab* burned_subs,
+		struct network_popup* network_settings)
 {
 	//Write main_tab data
 	fprintf(file, "port_or_files:%d\n", main_settings->port_or_files);
@@ -446,6 +474,22 @@ void save_data(FILE *file,
 	fprintf(file, "luminance_threshold:%d\n", burned_subs->luminance_threshold);
 	fprintf(file, "confidence_threshold:%d\n", burned_subs->confidence_threshold);
 	fprintf(file, "is_italic:%d\n", burned_subs->is_italic);
+
+	//Write Network Settings popup data
+	if (network_settings->save_network_settings)
+	{
+		fprintf(file, "udp_ipv4_len:%d\n", network_settings->udp_ipv4_len);
+		fprintf(file, "udp_ipv4:%s\n", network_settings->udp_ipv4);
+		fprintf(file, "tcp_pass_len:%d\n", network_settings->tcp_pass_len);
+		fprintf(file, "tcp_pass:%s\n", network_settings->tcp_pass);
+		fprintf(file, "tcp_desc_len:%d\n", network_settings->tcp_desc_len);
+		fprintf(file, "tcp_desc:%s\n", network_settings->tcp_desc);
+		fprintf(file, "send_port_len:%d\n", network_settings->send_port_len);
+		fprintf(file, "send_port:%s\n", network_settings->send_port);
+		fprintf(file, "send_host_len:%d\n", network_settings->send_host_len);
+		fprintf(file, "send_host:%s\n", network_settings->send_host);
+		
+	}
 }
 
 void write_credits(FILE* file, struct credits_tab* credits)

@@ -3,6 +3,7 @@
 
 #include "ccextractorGUI.h"
 #include "tabs.h"
+#include "popups.h"
 #include <stdio.h>
 
 void load_data(FILE *file,
@@ -14,7 +15,8 @@ void load_data(FILE *file,
 		struct credits_tab* credits,
 		struct debug_tab* debug,
 		struct hd_homerun_tab* hd_homerun,
-		struct burned_subs_tab* burned_subs);
+		struct burned_subs_tab* burned_subs,
+		struct network_popup* network_settings);
 
 void save_data(FILE *file,
 		struct main_tab* main_settings,
@@ -25,7 +27,8 @@ void save_data(FILE *file,
 		struct credits_tab* credits,
 		struct debug_tab* debug,
 		struct hd_homerun_tab* hd_homerun,
-		struct burned_subs_tab* burned_subs);
+		struct burned_subs_tab* burned_subs,
+		struct network_popup* network_settings);
 
 void write_credits(FILE* file, struct credits_tab* credits);
 void read_credits(FILE* file, struct credits_tab* credits);
