@@ -632,7 +632,7 @@ int main(void)
 			nk_layout_row(ctx, NK_DYNAMIC, 20, 6, ratio_progress);
 			nk_spacing(ctx, 1);
 			nk_spacing(ctx, 1);
-			nk_progress(ctx, &main_settings.progress_cursor, 101, nk_true);
+			nk_progress(ctx, &main_settings.progress_cursor, 101, nk_false);
 
 
 

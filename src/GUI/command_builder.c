@@ -20,7 +20,11 @@ void command_builder(struct built_string *command,
 		struct burned_subs_tab *burned_subs)
 {
 	static char buffer[1000];	
+#ifdef _WIN32
+	strcpy(buffer, "ccextractorwin --gui_mode_reports");
+#else
 	strcpy(buffer, "./ccextractor --gui_mode_reports");
+#endif
 
 	/*INPUT COMMANDS*/
 	if (main_settings->port_or_files == FILES)
