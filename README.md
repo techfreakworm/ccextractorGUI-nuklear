@@ -1,9 +1,9 @@
 # GUI for CCExtractor
 ## Developed Under Google Summer of Code 2017
 
-This repository contains CCExtractor's code from [official CCExtractor repository](https://github.com/CCExtractor/ccextractor)
+This repository contains CCExtractor's code from [official CCExtractor repository](https://github.com/CCExtractor/ccextractor) along with the GUI code (written during GSoC 2017 period.
 
-### Note: The project is merge to [official repository](http://github.com/CCExtractor/ccextractor)
+### Note: The project is merged to [official repository](http://github.com/CCExtractor/ccextractor)
 Link to pull request : https://github.com/CCExtractor/ccextractor/pull/794
 
 
